@@ -5,173 +5,156 @@
     Author: Matthias Tsai
     Email: matthias.chinyen.tsai@gmail.com
     Date created: 21/12/2018
-    Date last modified: 22/12/2018
+    Date last modified: 04/01/2019
     Python Version: 3.5
 """
 
 import numpy as np
-import random as rnd
-from plasticity import *
+import brian2 as b2
 
-
-ProtocolParameters = {'integration_timestep': 0.1 * b2.ms,
+ProtocolParameters = {'integration_timestep': 0.1 * b2.msecond,
                       'integration_method': 'euler',
                       'weight_initial': 0.5}
 
 
-class PlasticityProtocol:
-    def __init__(self, protocol_type='Letzkus', trace_id=1, plasticity_parameters=Clopath_parameters, debug=False):
-        """
-        A synaptic weight change simulation class, which calculates the weight change, when a synapse is exposed to the
-        voltage trace defined by protocol_type and trace_id. This plasticity is computed using the plasticity rule
-        defined by plasticity_parameters and veto.
-        :param protocol_type:
-        :param trace_id:
-        :param plasticity_parameters: parameters of the pasticity rule (see plasticity.py for examples)
-        :param debug: Set to true for verbose output and shorter simulation
-        """
+def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
+             mon_parameters=False, debug=False):
+    """
+    A synaptic weight change simulation function, which calculates the weight change, when a synapse is exposed to the
+    voltage trace defined by protocol_type and trace_id. This plasticity is computed using the plasticity rule
+    defined by plasticity_parameters and veto.
+    :param protocol_type: Specifies the study from which we use the voltage traces. Can be 'Brandalise' or 'Letzkus'
+    :param trace_id: Identifies the voltage trace of the protocol.
+    :param plasticity_parameters: parameters of the plasticity rule (see plasticity.py for examples)
+    :param mon_parameters: Specifies the variables to monitor during the simulation
+    :param debug: Set to true for verbose output and shorter simulation
+    """
 
-        # Fix random seeds to insure code reproducibility
-        b2.seed(1)
-        rnd.seed(321)
-        np.random.seed(1002)
+    # Fix random seeds to insure code reproducibility
+    b2.seed(1)
+    np.random.seed(1002)
 
-        # Initialize class variables
-        b2.defaultclock.dt = ProtocolParameters['integration_timestep']
-        self.plasticity_parameters = plasticity_parameters
-        self.veto = plasticity_parameters['veto']
-        self.debug = debug
+    ####################################################################################################################
+    # Load voltage traces and get presynaptic input spike time
+    ####################################################################################################################
 
-        # Load voltage trace and create presynaptc input
-        if protocol_type is 'Letzkus':
-            voltage = np.load('../Data/L_{}.npy'.format(trace_id))
-            if trace_id in [0, 2, 4, 6, 8, 9]:
-                self.neuron_pre = b2.SpikeGeneratorGroup(1, [0], [0.0 * b2.ms])
-            elif trace_id in [1, 3, 5, 7]:
-                self.neuron_pre = b2.SpikeGeneratorGroup(1, [0], [10.0 * b2.ms])
-            else:
-                raise ValueError(trace_id)
-        elif protocol_type is 'Brandalise':
-            voltage = np.load('../Data/B_{}.npy'.format(trace_id))
-            if trace_id in list(range(21)):
-                self.neuron_pre = b2.SpikeGeneratorGroup(1, [0], [0.0 * b2.ms])
-            elif trace_id in [21, 22, 23]:
-                self.neuron_pre = b2.SpikeGeneratorGroup(1, [0], [40.0 * b2.ms])
-            else:
-                raise ValueError(trace_id)
+    if protocol_type is 'Letzkus':
+        voltage = np.load('../Data/L_{}.npy'.format(trace_id))
+        if trace_id in [0, 2, 4, 6, 8, 9]:
+            prespike = 0.0 * b2.ms
+        elif trace_id in [1, 3, 5, 7]:
+            prespike = 10.0 * b2.ms
         else:
-            raise ValueError(protocol_type)
-        print(np.max(voltage))
-        vt = b2.TimedArray(voltage * b2.mV, ProtocolParameters['integration_timestep'])
-        self.final_t = len(voltage) * ProtocolParameters['integration_timestep']
-
-        # Build postsynaptic neuron
-        self.neuron_post = self.make_neuron(vt)
-
-        # Create synapse
-        self.syn = self.make_synapse()
-
-        if debug:
-            print('\n\n\nInitialized Simulation with:')
-            print('- Simulation time: {}'.format(self.final_t))
-            print("- Stimulation protocol: {} and trace: {}".format(protocol_type, trace_id))
-            print("- Plasticity model: {} and veto: {}\n".format(plasticity_parameters['PlasticityRule'], veto))
-
-    def make_neuron(self, v_trace):
-        """
-        This function makes a postsynaptic neuron group based on the postsynaptic neuron parameters of the class object.
-        :param v_trace: voltage trace of the neuron
-        :return: the postsynaptic neuron group
-        """
-
-        # Define constants used in the equations
-        neuronparams = {'v': v_trace,
-                        'tau_lowpass1': self.plasticity_parameters['tau_lowpass1'],
-                        'tau_lowpass2': self.plasticity_parameters['tau_lowpass2']}
-
-        # Define equations
-        eqs = '''dv_lowpass1/dt = (v(t)-v_lowpass1)/tau_lowpass1 : volt  # low-pass filter\n'''
-        eqs += '''dv_lowpass2/dt = (v(t)-v_lowpass2)/tau_lowpass2 : volt  # low-pass filter'''
-
-        # Create neuron group object according to the upper defined equations
-        neuron_out = b2.NeuronGroup(N=1, model=eqs, namespace=neuronparams, name='postneuron',
-                                    method=ProtocolParameters['integration_method'])
-
-        # Initialize the values of the variables
-        neuron_out.v_lowpass1 = 0
-        neuron_out.v_lowpass1 = 0
-
-        return neuron_out
-
-    def make_synapse(self):
-        """
-        This function makes a synapse between the two neurons based on the plastictiy parameters
-
-        :return: The synapse object
-        """
-
-        # Get the plasticity equations depending on the chosen plasticity rule
-        if self.plasticity_parameters['PlasticityRule'] == 'Clopath':
-            params, pre_eqs, syn_eqs = get_clopath(self.plasticity_parameters, self.veto)
-
-        elif self.plasticity_parameters['PlasticityRule'] == 'Claire':
-            params, pre_eqs, syn_eqs = get_claire(self.plasticity_parameters, self.veto)
-
+            raise ValueError(trace_id)
+    elif protocol_type is 'Brandalise':
+        voltage = np.load('../Data/B_{}.npy'.format(trace_id))
+        if trace_id in list(range(21)):
+            prespike = 0.0 * b2.ms
+        elif trace_id in [21, 22, 23]:
+            prespike = 40.0 * b2.ms
         else:
-            raise NotImplementedError(self.plasticity_parameters['PlasticityRule'])
+            raise ValueError(trace_id)
+    else:
+        raise ValueError(protocol_type)
 
-        # Construct the synapses according to the equations
-        syn = b2.Synapses(source=self.neuron_pre, target=self.neuron_post, model=syn_eqs, on_pre=pre_eqs,
-                          multisynaptic_index='synapse_number', namespace=params,
-                          method=ProtocolParameters['integration_method'])
+    # Get Simulation duration
+    final_t = len(voltage) * ProtocolParameters['integration_timestep']
 
-        # Connect the neurons
-        syn.connect(p=1)
+    ####################################################################################################################
+    # Define neuron and synapse equations and bundle them into single neuron object for later simulation with Brian2
+    ####################################################################################################################
 
-        # Initialize synaptic variables
-        syn.w_ampa = 0
-        syn.pre_x_trace = 0
-        if self.veto:
-            syn.theta = 0
+    # Define constants used in the equations
+    params = {'v': b2.TimedArray(voltage * b2.mV, ProtocolParameters['integration_timestep']),
+              'tau_lowpass1': plasticity_parameters['tau_lowpass1'],
+              'tau_lowpass2': plasticity_parameters['tau_lowpass2'],
+              't_pre': prespike,
+              'x_reset': plasticity_parameters['x_reset'],
+              'A_LTP': plasticity_parameters['A_LTP'],
+              'A_LTD': plasticity_parameters['A_LTD'],
+              'Theta_low': plasticity_parameters['Theta_low'],
+              'Theta_high': plasticity_parameters['Theta_high'],
+              'tau_x': plasticity_parameters['tau_x'],
+              'w_max': plasticity_parameters['w_max'] - plasticity_parameters['w_init'],
+              'w_min': -plasticity_parameters['w_init']
+              }
 
-        if self.debug:
-            print('synapse made according to ', self.plasticity_parameters['PlasticityRule'])
+    # Define neuron equations
+    eqs = b2.Equations('dv_lowpass1/dt = (v(t)-v_lowpass1)/tau_lowpass1 : volt')
+    eqs += b2.Equations('dv_lowpass2/dt = (v(t)-v_lowpass2)/tau_lowpass2 : volt')
+    eqs += b2.Equations('pre_x_trace = x_reset * exp((t_pre - t) / tau_x) * int(t >= t_pre) : 1')
 
-        return syn
+    # Define plasticity equations depending on the chosen plasticity rule
+    if plasticity_parameters['PlasticityRule'] == 'Clopath':
+        eqs += b2.Equations('wLTP = A_LTP * pre_x_trace * (v - Theta_high) * (v_lowpass2 - Theta_low)'
+                            ' * int(v - Theta_high > 0*mV) * int(v_lowpass2 - Theta_low > 0*mV)')
+        eqs += b2.Equations('w_ampa = clip(w_ampa - A_LTD * (v_lowpass1/mV - Theta_low/mV) * int(t == t_pre)'
+                            ' * int(v_lowpass1_post/mV - Theta_low/mV > 0) + 0.1 * wLTP, w_min, w_max) : 1')
+    elif plasticity_parameters['PlasticityRule'] == 'Claire':
+        eqs += b2.Equations('wLTD = A_LTD * pre_x_trace * (v_lowpass1 - Theta_low)'
+                            ' * int(v_lowpass1/mV - Theta_low/mV > 0) * int(w_ampa > w_min) : volt')
+        eqs += b2.Equations('wLTP = A_LTP * pre_x_trace * (v_lowpass2 - Theta_high)'
+                            ' * int(v_lowpass2/mV - Theta_high/mV > 0) * int(w_max > w_ampa) : volt')
+        eqs += b2.Equations('dw_ampa/dt = (wLTP - wLTD)/(mV*ms) : 1')
+    else:
+        raise NotImplementedError(plasticity_parameters['PlasticityRule'])
 
-    def run(self, syn_parameters=False, post_parameters=False):
-        """
-        :param syn_parameters: a list of the parameters that should be recorded from the synapse, e.g. ['w_ampa', 'r_1']
-        :param post_parameters: a list of the parameters that should be recorded from the postsynaptic neuron.
-        :return: parameters_out, a dictionary containing all the parameters that were recorded, with keys syn_monitor
-        and post_monitor, if they were variables required respectively.
-        """
+    # Add veto equations if required
+    if plasticity_parameters['veto']:
+        params['Theta_low_zero'] = plasticity_parameters['Theta_low']
+        params['b_theta'] = plasticity_parameters['b_theta']
+        params['tau_theta'] = plasticity_parameters['tau_theta']
+        eqs += b2.Equations('dtheta/dt = (wLTP - theta) / tau_theta : volt')
+        eqs += b2.Equations('Theta_low = Theta_low_zero + b_theta * theta : volt')
+    else:
+        params['Theta_low'] = plasticity_parameters['Theta_low']
 
-        if self.debug:
-            print('\nRunning Simulation:')
+    # Create neuron group object according to the upper defined equations
+    neuron = b2.NeuronGroup(N=1, model=eqs, namespace=params, name='postneuron',
+                            method=ProtocolParameters['integration_method'])
 
-        neuron_pre = self.neuron_pre
-        neuron_post = self.neuron_post
-        syn = self.syn
+    # Initialize variables
+    neuron.v_lowpass1 = 0
+    neuron.v_lowpass2 = 0
+    neuron.w_ampa = 0
+    if plasticity_parameters['veto']:
+        neuron.theta = 0
 
-        # Define monitors that will record the desired variables during simulation
-        parameters_out = {}
-        if syn_parameters:
-            syn_monitor = b2.StateMonitor(syn, syn_parameters, record=True)
-            parameters_out['syn_monitor'] = syn_monitor
+    ####################################################################################################################
+    # Finish Initialization
+    ####################################################################################################################
 
-        if post_parameters:
-            post_monitor = b2.StateMonitor(neuron_post, post_parameters, record=True)
-            parameters_out['post_monitor'] = post_monitor
+    if debug:
+        print('\nInitialized Simulation with:')
+        print('- Simulation time: {}'.format(final_t))
+        print("- Stimulation protocol: {} and trace: {}".format(protocol_type, trace_id))
+        print("- Plasticity model: {} and veto: {}\n".format(plasticity_parameters['PlasticityRule'],
+                                                             plasticity_parameters['veto']))
 
-        # Run simulation
-        rep = 'text' if self.debug else None
-        b2.run(self.final_t, report=rep)
+    ####################################################################################################################
+    # Run Simulation
+    ####################################################################################################################
 
-        if self.debug:
-            print('Simulation successfully terminated')
+    if debug:
+        print('\nRunning Simulation:')
 
-        # Compute final plasticity (Note how dependent this final value is on the initial weight)
-        plasticity = self.syn.w_ampa / ProtocolParameters['weight_initial']
+    # Define monitor that will record the desired variables during simulation
+    monitor = None
+    if mon_parameters:
+        monitor = b2.StateMonitor(neuron, mon_parameters, record=True)
 
-        return parameters_out, plasticity
+    # Run simulation
+    rep = 'text' if debug else None
+    b2.run(final_t, report=rep)
+
+    if debug:
+        print('Simulation successfully terminated.\n')
+
+    ####################################################################################################################
+    # Finished Simulation and prepare final output
+    ####################################################################################################################
+
+    # Compute final plasticity (Note how dependent this final value is on the initial weight)
+    plasticity = neuron.w_ampa[0] / plasticity_parameters['w_init']
+
+    return plasticity, monitor

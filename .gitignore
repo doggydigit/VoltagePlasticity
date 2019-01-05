@@ -1,2 +1,15 @@
 # Theory explanation files and papers.
 Theory/*
+
+#Original Data files
+Data/*.csv
+Data/*.xlsx
+
+# Results
+*.ods*
+*docx
+
+# ipython stuff
+src/.idea
+src/*ipynb*
+src/__pycache__

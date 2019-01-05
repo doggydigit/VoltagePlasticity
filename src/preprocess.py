@@ -23,7 +23,7 @@ if __name__ == "__main__":
     c = pd.read_csv('../Data/Brandalise_traces.csv', header=None)
     c.drop([25, 26], 'columns', inplace=True)
     for i in range(c.shape[1]):
-        c[i] = c[i] - np.mean(c[i][:11])
+        c[i] = c[i] - np.mean(c[i][11])
     c.drop(list(range(11)), inplace=True)
     c.to_csv('../Data/Brandalise_clean.csv', header=None, index=False)
 
@@ -31,8 +31,9 @@ if __name__ == "__main__":
     c = pd.read_csv('../Data/Letzkus_traces.csv', header=None)
     c.drop([0, 1], 'columns', inplace=True)
     for i in range(2, c.shape[1] + 2):
-        c[i] = c[i] - np.mean(c[i][:5])
+        c[i] = c[i] - np.mean(c[i][5])
     c.drop(list(range(5)), inplace=True)
+    c = 1000 * c  # Letzkus is in volts, so we convert to mV
     c.to_csv('../Data/Letzkus_clean.csv', header=None, index=False)
 
     # Save traces to numpy arrays for Brandalise
@@ -40,13 +41,13 @@ if __name__ == "__main__":
     for i in range(c.shape[1]):
         a = c.as_matrix([i])
         a = a[~np.isnan(a)]
-        a = np.append(a, [0.0] * (10000 - len(a)))
+        a = np.append(a, [0.0] * (100000 - len(a)))
         np.save('../Data/B_{}'.format(i), a)
 
     # Save traces to numpy arrays for Letzkus
     c = pd.read_csv('../Data/Letzkus_clean.csv', header=None)
     for i in range(c.shape[1]):
         a = c.as_matrix([i])
-        a = a[~np.isnan(a)]*1000
-        a = np.append(a, [0.0] * (1000 - len(a)))
+        a = a[~np.isnan(a)]
+        a = np.append(a, [0.0] * (10000 - len(a)))
         np.save('../Data/L_{}'.format(i), a)
