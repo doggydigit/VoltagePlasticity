@@ -149,6 +149,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     for i in range(nr_iterations):
 
         print('Iteration: {}'.format(i))
+        sys.stdout.flush()
 
         ################################################################################################################
         #        Modify one parameter and only accept new configuration if it remains within the allowed bounds
