@@ -173,7 +173,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     for i in range(nr_iterations):
 
         print('Iteration: {}'.format(i))
-        print(indexes)
         sys.stdout.flush()
 
         ################################################################################################################
@@ -287,9 +286,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                 parameters = new_parameters
                 indexes = new_indexes
                 current_score = new_score
-                print('new')
-            else:
-                print('bad')
 
         print('    Score = {}'.format(current_score))
 
