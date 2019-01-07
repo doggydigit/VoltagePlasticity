@@ -13,3 +13,7 @@ Data/*.xlsx
 src/.idea
 src/*ipynb*
 src/__pycache__
+
+src/*.pyc
+src/*.sh
+src/log/*
