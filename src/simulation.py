@@ -30,10 +30,6 @@ def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
     :param debug: Set to true for verbose output and shorter simulation
     """
 
-    # Fix random seeds to insure code reproducibility
-    b2.seed(1)
-    np.random.seed(1002)
-
     ####################################################################################################################
     # Load voltage traces and get presynaptic input spike time
     ####################################################################################################################

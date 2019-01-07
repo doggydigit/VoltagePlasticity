@@ -137,9 +137,15 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Monte-Carlo iterations
     ################################################################################################################
 
+    # Set random seed to current time to have different seeds for each of the many jobs
+    rnd.seed()
+
+    # Initialize some variable
     current_score = 0
     nr_iterations = 100000
+
     print('\nStarting Monte-Carlo optimization:')
+
     for i in range(nr_iterations):
 
         print('Iteration: {}'.format(i))
@@ -273,7 +279,7 @@ if __name__ == "__main__":
     # Simulation choices
     ptype = 'Letzkus'  # Type of protocol to use for parameter fit
     rule_name = 'Claire'  # can be either of 'Claire' or 'Clopath'
-    vetoing = True  # whether or not to use a veto mechanism between LTP and LTD
+    vetoing = False  # whether or not to use a veto mechanism between LTP and LTD
 
     # Run
     exi = main(ptype, rule_name, veto=vetoing, debug=False, granularity=g, first_id=fid)
