@@ -31,10 +31,10 @@ Lparams = {'PlasticityRule': 'Claire',
            'veto': True,
            'x_reset': 1.,  # spike trace reset value'
            'A_LTD': 0.0001872,  # depression amplitude
-           'A_LTP': 0.0000393,  # potentiation amplitude
+           'A_LTP': 0.00003933,  # potentiation amplitude
            'Theta_low': 4.886 * b2.mV,  # depolarization threshold for plasticity
            'Theta_high': 26.04 * b2.mV,
-           'b_theta': 9999,
+           'b_theta': 9999.,
            'tau_theta': 32.13 * b2.ms,
            'tau_lowpass1': 77.17 * b2.ms,  # = tau_minus
            'tau_lowpass2': 2.001 * b2.ms,  # = tau_plus
@@ -70,5 +70,6 @@ if __name__ == "__main__":
              p[10], p[11],
              p[12], 0.81 * p[13] + 0.19 * p[14], p[15], p[16], 0.84 * p[17] + 0.16 * p[18], p[19], p[20],
              0.85 * p[21] + 0.15 * p[22], p[23]]
+
     for t in range(len(p)):
         print("Trace {} has plasticity: {}".format(t, 100 * (1 + repets * p[t])))

@@ -92,9 +92,9 @@ def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
                             ' * int(v_lowpass1_post/mV - Theta_low/mV > 0) + 0.1 * wLTP, w_min, w_max) : 1')
     elif plasticity_parameters['PlasticityRule'] == 'Claire':
         eqs += b2.Equations('wLTD = A_LTD * pre_x_trace * (v_lowpass1 - Theta_low)'
-                            ' * int(v_lowpass1/mV - Theta_low/mV > 0) * int(w_ampa > w_min) : volt')
+                            ' * int(v_lowpass1/mV - Theta_low/mV > 0) : volt')
         eqs += b2.Equations('wLTP = A_LTP * pre_x_trace * (v_lowpass2 - Theta_high)'
-                            ' * int(v_lowpass2/mV - Theta_high/mV > 0) * int(w_max > w_ampa) : volt')
+                            ' * int(v_lowpass2/mV - Theta_high/mV > 0) : volt')
         eqs += b2.Equations('dw_ampa/dt = (wLTP - wLTD)/(mV*ms) : 1')
     else:
         raise NotImplementedError(plasticity_parameters['PlasticityRule'])
