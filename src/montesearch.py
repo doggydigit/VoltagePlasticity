@@ -142,7 +142,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Initialize some variable
     current_score = 0
-    nr_iterations = 100000
+    nr_iterations = 10000000
 
     print('\nStarting Monte-Carlo optimization:')
 
