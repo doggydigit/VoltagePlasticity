@@ -10,6 +10,7 @@
 """
 
 import sys
+import math
 import dataset
 import warnings
 import random as rnd
@@ -47,7 +48,8 @@ def set_param(pname, index, granu=0):
         raise NotImplementedError
 
 
-def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, granularity=0, first_id=None):
+def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, granularity=0, first_id=None,
+         split=True, jid=0,):
     """
     Simulate a stimulation protocol with the desired neuron model and plasticity rule to monitor the resulting synaptic
     weight dynamics. This can also plot or save some results of the simulation.
@@ -57,7 +59,12 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     :param debug: bool whether or not to have a more verbose output and simplified simulation
     :param granularity: int describing how fine the param search will be (Note: the range is also decreased for that)
     :param first_id: ID of the parameter configuration to start with. If None, a random configuration is used.
+    :param split: bool whether or not to split the search grid dependening on the job id
+    :param jid: id of the job running the montecarlo search. Necessary for splitting the grid search in case of split.
     """
+
+    # Set random seed to current time to have different seeds for each of the many jobs
+    rnd.seed()
 
     ####################################################################################################################
     # Define some variables depending on the protocol type
@@ -81,7 +88,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Connect to database (Sqlite database corresponding to the plasticity model used)
     ####################################################################################################################
 
-    db_name = '../Data/monteresults_' + protocol_type + '_g' + str(granularity) + '.db'
+    db_name = '../Data/monteresults_' + protocol_type + '_g' + str(granularity) + '_j' + str(jid) + '.db'
     db = dataset.connect('sqlite:///' + db_name)
     table_name = plasticity + '_veto' if veto else plasticity + '_noveto'
     the_table = db.create_table(table_name)
@@ -90,8 +97,32 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Plasticity parameters initializations
     ####################################################################################################################
 
-    # List of parameters to fit
-    param_names = ['Theta_high', 'Theta_low', 'A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+    # List of parameters to fit and initialization of parameters object with those that don't need fitting
+    if split:
+        # List of parameters to fit
+        param_names = ['A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+
+        # Compute set parameter indexes
+        itl = jid % 9
+        ith = math.floor(float(jid) / 9.)
+        indexes = {'Theta_high': ith, 'Theta_low': itl}
+
+        # Compute set parameter values
+        tl = set_param('Theta_low', itl, g)
+        th = set_param('Theta_high', ith, g)
+
+        # Initialize parameters not needing fitting
+        parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
+                      'Theta_high': th, 'Theta_low': tl}
+    else:
+        # List of parameters to fit
+        param_names = ['Theta_high', 'Theta_low', 'A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+
+        # Initialize parameters not needing fitting
+        parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
+
+        # Initialize dictionary for parameter indexes
+        indexes = {}
 
     # Specifications of the search grid depending on the search granularity
     if granularity == 0:
@@ -109,11 +140,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         grid_params['b_theta'] = 5
         grid_params['tau_theta'] = 5
 
-    # Initialize parameters that don't need to be fitted
-    parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
-
     # Initialize parameter indices
-    indexes = {}
     if first_id is None:
         for param_name in param_names:
             indexes[param_name] = rnd.sample(range(grid_params[param_name]), 1)[0] + 1
@@ -137,18 +164,16 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Monte-Carlo iterations
     ################################################################################################################
 
-    # Set random seed to current time to have different seeds for each of the many jobs
-    rnd.seed()
-
     # Initialize some variable
-    current_score = 0
-    nr_iterations = 10000000
+    current_score = sys.maxsize
+    nr_iterations = 1000000
 
     print('\nStarting Monte-Carlo optimization:')
 
     for i in range(nr_iterations):
 
         print('Iteration: {}'.format(i))
+        print(indexes)
         sys.stdout.flush()
 
         ################################################################################################################
@@ -262,6 +287,9 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                 parameters = new_parameters
                 indexes = new_indexes
                 current_score = new_score
+                print('new')
+            else:
+                print('bad')
 
         print('    Score = {}'.format(current_score))
 
@@ -270,10 +298,18 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
 if __name__ == "__main__":
 
-    g = int(sys.argv[1])  # Resolution of the grid search
+    # Job ID
+    j = int(sys.argv[1])
 
-    if len(sys.argv) == 3:
-        fid = int(sys.argv[2])
+    # Resolution of the grid search
+    if len(sys.argv) > 2:
+        g = int(sys.argv[2])
+    else:
+        g = 0
+
+    # Starting Configuration
+    if len(sys.argv) == 4:
+        fid = int(sys.argv[3])
     else:
         fid = None
 
@@ -283,7 +319,7 @@ if __name__ == "__main__":
     vetoing = False  # whether or not to use a veto mechanism between LTP and LTD
 
     # Run
-    exi = main(ptype, rule_name, veto=vetoing, debug=False, granularity=g, first_id=fid)
+    exi = main(ptype, rule_name, veto=vetoing, debug=False, granularity=g, first_id=fid, split=True, jid=j)
 
     if exi is 0:
         print('\nMonte-Carlo search finished successfully!')
