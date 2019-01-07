@@ -227,13 +227,13 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
                                                  tx=new_indexes['tau_x'], bt=new_indexes['b_theta'],
-                                                 tt=new_indexes['tau_theta'], score=-1))
+                                                 tt=new_indexes['tau_theta'], score=9999999999999999))
 
             else:
                 query_id = the_table.insert(dict(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
-                                                 tx=new_indexes['tau_x'], score=-1))
+                                                 tx=new_indexes['tau_x'], score=9999999999999999))
             db.commit()
 
             ############################################################################################################
