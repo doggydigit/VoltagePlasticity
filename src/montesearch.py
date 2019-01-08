@@ -183,8 +183,10 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     else:
         print('python 3')
         maxint = sys.maxsize
+    print(process.memory_info().rss)
     current_score = maxint
-    nr_iterations = 1000000000
+    print('maxint{}'.format(maxint))
+    nr_iterations = 10000000
     patience = 3*len(param_names)
     waiting = 0
 
