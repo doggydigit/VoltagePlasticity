@@ -43,6 +43,7 @@ Lparams = {'PlasticityRule': 'Claire',
            'w_init': 0.5
            }
 
+
 def set_param(pname, index, granu=0):
     """
     This function will either transform the given index to the corresponding parameter value or sample an index in the
@@ -95,13 +96,10 @@ if __name__ == "__main__":
             parameters = {'PlasticityRule': 'Claire', 'veto': False, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
 
             # Initialize dictionary for parameter indexes
-            indexes = {'A_LTD': 0.2, 'A_LTP': 2, 'Theta_low': 0, 'Theta_high': 0, 'b_theta': 9999.,
-           'tau_theta': 32.13 * b2.ms,
-           'tau_lowpass1': 77.17 * b2.ms,  # = tau_minus
-           'tau_lowpass2': 2.001 * b2.ms,  # = tau_plus
-           'tau_x': 20.89 * b2.ms,}
+            indexes = {'A_LTD': 2, 'A_LTP': 2, 'Theta_low': 1, 'Theta_high': 1,
+                       'tau_lowpass1': 1, 'tau_lowpass2': 3, 'tau_x': 1}
 
-            # Initialize parameter values from indices according to desired grid design and specfici granularity
+            # Initialize parameter values from indices according to desired grid design and specfic granularity
             for param_name in param_names:
                 parameters[param_name] = set_param(param_name, indexes[param_name], 0)
     else:
