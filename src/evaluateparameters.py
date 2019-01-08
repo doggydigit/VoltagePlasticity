@@ -43,10 +43,39 @@ Lparams = {'PlasticityRule': 'Claire',
            'w_init': 0.5
            }
 
+def set_param(pname, index, granu=0):
+    """
+    This function will either transform the given index to the corresponding parameter value or sample an index in the
+    right parameter range to produce a randomly sampled value for the desired parameter.
+    :param pname: Name of the parameter to set
+    :param index: Index of the parameter value
+    :param granu: Granularity of the parameter search, which determines what parameter search subspace
+    :return: return the value for desired parameter to set
+    """
+
+    if granu == 0:
+        if pname in ['Theta_high', 'Theta_low']:
+            return (-15 - 7 * index) * b2.mV
+        elif pname in ['A_LTP', 'A_LTD']:
+            return 0.001 * 10 ** index
+        elif pname in ['tau_lowpass1', 'tau_lowpass2']:
+            return 2 ** index * b2.ms
+        elif pname is 'tau_x':
+            return 2 ** (index - 2) * b2.ms
+        elif pname is 'b_theta':
+            return 0.4 * 5 ** index
+        elif pname is 'tau_theta':
+            return 0.2 * 5 ** index * b2.ms
+        else:
+            raise ValueError(pname)
+    else:
+        raise NotImplementedError
+
+
 if __name__ == "__main__":
 
     # Chose the simulation you want to test the parameters on
-    protocol = 'Brandalise'
+    protocol = 'Letzkus'
 
     # Initialize some specifics
     if protocol is 'Brandalise':
@@ -56,7 +85,25 @@ if __name__ == "__main__":
     elif protocol is 'Letzkus':
         nrtraces = 10
         repets = 150
-        parameters = Lparams
+        if False:
+            parameters = Lparams
+        else:
+            # List of parameters to fit
+            param_names = ['Theta_high', 'Theta_low', 'A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+
+            # Initialize parameters not needing fitting
+            parameters = {'PlasticityRule': 'Claire', 'veto': False, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
+
+            # Initialize dictionary for parameter indexes
+            indexes = {'A_LTD': 0.2, 'A_LTP': 2, 'Theta_low': 0, 'Theta_high': 0, 'b_theta': 9999.,
+           'tau_theta': 32.13 * b2.ms,
+           'tau_lowpass1': 77.17 * b2.ms,  # = tau_minus
+           'tau_lowpass2': 2.001 * b2.ms,  # = tau_plus
+           'tau_x': 20.89 * b2.ms,}
+
+            # Initialize parameter values from indices according to desired grid design and specfici granularity
+            for param_name in param_names:
+                parameters[param_name] = set_param(param_name, indexes[param_name], 0)
     else:
         raise ValueError(protocol)
     p = [0] * nrtraces

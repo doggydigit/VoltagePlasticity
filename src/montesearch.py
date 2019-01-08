@@ -154,7 +154,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         if debug:
             print('First indices are:\n{}'.format(first_indices))
 
-    # Initialize parameter values from indices according to desired grid design and specfici granularity
+    # Initialize parameter values from indices according to desired grid design and specfic granularity
     for param_name in param_names:
         parameters[param_name] = set_param(param_name, indexes[param_name], granularity)
 
@@ -167,6 +167,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Initialize some variable
     current_score = sys.maxsize
     nr_iterations = 1000000
+    patience = 3*len(param_names)
+    waiting = 0
 
     print('\nStarting Monte-Carlo optimization:')
 
@@ -175,33 +177,46 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         print('Iteration: {}'.format(i))
         sys.stdout.flush()
 
-        ################################################################################################################
-        #        Modify one parameter and only accept new configuration if it remains within the allowed bounds
-        ################################################################################################################
+        if waiting < patience:
 
-        # Select parameter to modify and make copy of all parameters to work with
-        new_parameters = dict(parameters)
-        new_indexes = dict(indexes)
-        param_name = rnd.sample(param_names, 1)[0]
+            ############################################################################################################
+            #        Modify one parameter and only accept new configuration if it remains within the allowed bounds
+            ############################################################################################################
 
-        # Shift index of selected parameter and check whether it remains in accepted bounds. Else skip iteration.
-        direction = bool(rnd.getrandbits(1))
-        if direction:
-            new_indexes[param_name] += 1
-            if new_indexes[param_name] > grid_params[param_name]:
-                if current_score > 0:
-                    print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
-                continue
+            # Select parameter to modify and make copy of all parameters to work with
+            new_parameters = dict(parameters)
+            new_indexes = dict(indexes)
+            param_name = rnd.sample(param_names, 1)[0]
+
+            # Shift index of selected parameter and check whether it remains in accepted bounds. Else skip iteration.
+            direction = bool(rnd.getrandbits(1))
+            if direction:
+                new_indexes[param_name] += 1
+                if new_indexes[param_name] > grid_params[param_name]:
+                    if current_score > 0:
+                        print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
+                    continue
+
+            else:
+                new_indexes[param_name] -= 1
+                if new_indexes[param_name] < 1:
+                    if current_score > 0:
+                        print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
+                    continue
+
+            # Index shift is accepted, thus update parameter value
+            new_parameters[param_name] = set_param(param_name, new_indexes[param_name])
 
         else:
-            new_indexes[param_name] -= 1
-            if new_indexes[param_name] < 1:
-                if current_score > 0:
-                    print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
-                continue
+            # If the system is stuck in a region where it cannot explore new configurations, randomly reset parameters
+            waiting = 0
+            current_score = sys.maxsize
 
-        # Index shift is accepted, thus update parameter value
-        new_parameters[param_name] = set_param(param_name, new_indexes[param_name])
+            for param_name in param_names:
+                new_indexes[param_name] = rnd.sample(range(grid_params[param_name]), 1)[0] + 1
+                new_parameters[param_name] = set_param(param_name, indexes[param_name], granularity)
+
+            print('\n>>>> Random Parameter Reset\n')
 
         ################################################################################################################
         # If parameter configuration was already simulated, move on to accept or reject it. Otherwise, run simulations.
@@ -219,6 +234,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                                        t2=new_indexes['tau_lowpass2'], tx=new_indexes['tau_x'])
 
         if query is None:
+
+            waiting = 0
 
             # Create that row and temporarily put a score of zero to prevent other processors to compute it again
             if veto:
@@ -260,13 +277,16 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
             # Compute score
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
-            new_score = min(differences)
+            new_score = max(differences)
 
             # Update database
             the_table.update(dict(id=query_id, score=new_score), ['id'])
             db.commit()
 
         else:
+
+            waiting += 1
+
             # Get score that was already computed
             new_score = query['score']
             print('    Was already simulated')
