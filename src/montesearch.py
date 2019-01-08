@@ -9,10 +9,6 @@
     Python Version: 3.5
 """
 
-import os
-import psutil
-process = psutil.Process(os.getpid())
-
 import sys
 import math
 import dataset
@@ -67,8 +63,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     :param jid: id of the job running the montecarlo search. Necessary for splitting the grid search in case of split.
     """
 
-    print(process.memory_info().rss)
-
     # Set random seed to current time to have different seeds for each of the many jobs
     rnd.seed()
 
@@ -90,8 +84,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     else:
         raise ValueError(protocol_type)
 
-    print(process.memory_info().rss)
-
     ####################################################################################################################
     # Connect to database (Sqlite database corresponding to the plasticity model used)
     ####################################################################################################################
@@ -104,8 +96,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     ####################################################################################################################
     # Plasticity parameters initializations
     ####################################################################################################################
-
-    print(process.memory_info().rss)
 
     # List of parameters to fit and initialization of parameters object with those that don't need fitting
     if split:
@@ -170,22 +160,13 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     print('\nInitialization completed.')
 
-    print(process.memory_info().rss)
-
     ################################################################################################################
     # Monte-Carlo iterations
     ################################################################################################################
 
     # Initialize some variable
-    if sys.version_info[0] < 3:
-        print('python 2')
-        maxint = sys.maxint
-    else:
-        print('python 3')
-        maxint = sys.maxsize
-    print(process.memory_info().rss)
+    maxint = 922337203685477
     current_score = maxint
-    print('maxint{}'.format(maxint))
     nr_iterations = 10000000
     patience = 3*len(param_names)
     waiting = 0
@@ -196,8 +177,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
         print('Iteration: {}'.format(i))
         sys.stdout.flush()
-
-        print(process.memory_info().rss)
 
         if waiting < patience:
 
@@ -244,8 +223,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         # If parameter configuration was already simulated, move on to accept or reject it. Otherwise, run simulations.
         ################################################################################################################
 
-        print(process.memory_info().rss)
-
         # Check whether this parameter configuration was already simulated.
         if debug:
             print('Finding...')
@@ -261,13 +238,9 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         if debug:
             print('Found')
 
-        print(process.memory_info().rss)
-
         if query is None:
 
             waiting = 0
-
-            print(process.memory_info().rss)
 
             # Create that row and temporarily put a score of zero to prevent other processors to compute it again
             if debug:
@@ -290,8 +263,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             db.commit()
             if debug:
                 print('Commited')
-
-            print(process.memory_info().rss)
 
             ############################################################################################################
             #            Run Simulations of all traces with new parameters and get plasticity
@@ -320,9 +291,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
             new_score = max(differences)
 
-            print(process.memory_info().rss)
-
-
             # Update database
             if debug:
                 print('Updating...')
@@ -333,7 +301,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             db.commit()
             if debug:
                 print('Commited')
-            print(process.memory_info().rss)
 
         else:
 
@@ -367,7 +334,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 if __name__ == "__main__":
 
     # Job ID
-    j = 0#int(sys.argv[1])
+    j = int(sys.argv[1])
 
     # Resolution of the grid search
     if len(sys.argv) > 2:
