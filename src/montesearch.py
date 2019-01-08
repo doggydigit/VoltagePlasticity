@@ -178,8 +178,10 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Initialize some variable
     if sys.version_info[0] < 3:
+        print('python 2')
         maxint = sys.maxint
     else:
+        print('python 3')
         maxint = sys.maxsize
     current_score = maxint
     nr_iterations = 1000000000
