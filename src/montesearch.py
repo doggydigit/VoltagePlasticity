@@ -80,7 +80,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         nrtraces = 10
         nrneurons = 10
         repets = 150
-        targets = [0.92, 1.29, 0.9, 1, 1.18, 1, 1.37, 0.85, 1, 0.78]
+        targets = [92, 129, 90, 100, 118, 100, 137, 85, 100, 78]
     else:
         raise ValueError(protocol_type)
 
@@ -104,7 +104,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
         # Compute set parameter indexes
         itl = jid % 9
-        ith = math.floor(float(jid) / 9.)
+        ith = int(math.floor(float(jid) / 9.))
         indexes = {'Theta_high': ith, 'Theta_low': itl}
 
         # Compute set parameter values
@@ -166,7 +166,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Initialize some variable
     current_score = sys.maxsize
-    nr_iterations = 1000000
+    nr_iterations = 10000000
     patience = 3*len(param_names)
     waiting = 0
 
