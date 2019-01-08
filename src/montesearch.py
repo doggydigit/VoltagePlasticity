@@ -166,7 +166,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Initialize some variable
     current_score = sys.maxsize
-    nr_iterations = 10000000
+    nr_iterations = 100000000
     patience = 3*len(param_names)
     waiting = 0
 
