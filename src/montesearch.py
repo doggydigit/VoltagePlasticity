@@ -367,7 +367,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 if __name__ == "__main__":
 
     # Job ID
-    j = 0#int(sys.argv[1])
+    j = int(sys.argv[1])
 
     # Resolution of the grid search
     if len(sys.argv) > 2:
