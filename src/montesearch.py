@@ -383,7 +383,7 @@ if __name__ == "__main__":
     vetoing = False  # whether or not to use a veto mechanism between LTP and LTD
 
     # Run
-    exi = main(ptype, rule_name, veto=vetoing, debug=False, granularity=g, first_id=fid, split=True, jid=j)
+    exi = main(ptype, rule_name, veto=vetoing, debug=True, granularity=g, first_id=fid, split=True, jid=j)
 
     if exi is 0:
         print('\nMonte-Carlo search finished successfully!')
