@@ -9,6 +9,10 @@
     Python Version: 3.5
 """
 
+import os
+import psutil
+process = psutil.Process(os.getpid())
+
 import sys
 import math
 import dataset
@@ -63,6 +67,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     :param jid: id of the job running the montecarlo search. Necessary for splitting the grid search in case of split.
     """
 
+    print(process.memory_info().rss)
+
     # Set random seed to current time to have different seeds for each of the many jobs
     rnd.seed()
 
@@ -84,6 +90,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     else:
         raise ValueError(protocol_type)
 
+    print(process.memory_info().rss)
+
     ####################################################################################################################
     # Connect to database (Sqlite database corresponding to the plasticity model used)
     ####################################################################################################################
@@ -96,6 +104,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     ####################################################################################################################
     # Plasticity parameters initializations
     ####################################################################################################################
+
+    print(process.memory_info().rss)
 
     # List of parameters to fit and initialization of parameters object with those that don't need fitting
     if split:
@@ -160,6 +170,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     print('\nInitialization completed.')
 
+    print(process.memory_info().rss)
+
     ################################################################################################################
     # Monte-Carlo iterations
     ################################################################################################################
@@ -176,6 +188,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
         print('Iteration: {}'.format(i))
         sys.stdout.flush()
+
+        print(process.memory_info().rss)
 
         if waiting < patience:
 
@@ -222,7 +236,11 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         # If parameter configuration was already simulated, move on to accept or reject it. Otherwise, run simulations.
         ################################################################################################################
 
+        print(process.memory_info().rss)
+
         # Check whether this parameter configuration was already simulated.
+        if debug:
+            print('Finding...')
         if veto:
             query = the_table.find_one(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                        ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'], t1=new_indexes['tau_lowpass1'],
@@ -232,12 +250,20 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             query = the_table.find_one(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                        ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'], t1=new_indexes['tau_lowpass1'],
                                        t2=new_indexes['tau_lowpass2'], tx=new_indexes['tau_x'])
+        if debug:
+            print('Found')
+
+        print(process.memory_info().rss)
 
         if query is None:
 
             waiting = 0
 
+            print(process.memory_info().rss)
+
             # Create that row and temporarily put a score of zero to prevent other processors to compute it again
+            if debug:
+                print('Inserting...')
             if veto:
                 query_id = the_table.insert(dict(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
@@ -250,7 +276,14 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
                                                  tx=new_indexes['tau_x'], score=9999999999999999))
+            if debug:
+                print('Inserted')
+                print('Commiting...')
             db.commit()
+            if debug:
+                print('Commited')
+
+            print(process.memory_info().rss)
 
             ############################################################################################################
             #            Run Simulations of all traces with new parameters and get plasticity
@@ -279,9 +312,20 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
             new_score = max(differences)
 
+            print(process.memory_info().rss)
+
+
             # Update database
+            if debug:
+                print('Updating...')
             the_table.update(dict(id=query_id, score=new_score), ['id'])
+            if debug:
+                print('Updated')
+                print('Commiting...')
             db.commit()
+            if debug:
+                print('Commited')
+            print(process.memory_info().rss)
 
         else:
 
