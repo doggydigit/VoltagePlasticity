@@ -224,8 +224,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         ################################################################################################################
 
         # Check whether this parameter configuration was already simulated.
-        if debug:
-            print('Finding...')
         if veto:
             query = the_table.find_one(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                        ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'], t1=new_indexes['tau_lowpass1'],
@@ -235,16 +233,12 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             query = the_table.find_one(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                        ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'], t1=new_indexes['tau_lowpass1'],
                                        t2=new_indexes['tau_lowpass2'], tx=new_indexes['tau_x'])
-        if debug:
-            print('Found')
 
         if query is None:
 
             waiting = 0
 
             # Create that row and temporarily put a score of zero to prevent other processors to compute it again
-            if debug:
-                print('Inserting...')
             if veto:
                 query_id = the_table.insert(dict(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
@@ -257,12 +251,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
                                                  tx=new_indexes['tau_x'], score=9999999999999999))
-            if debug:
-                print('Inserted')
-                print('Commiting...')
             db.commit()
-            if debug:
-                print('Commited')
 
             ############################################################################################################
             #            Run Simulations of all traces with new parameters and get plasticity
@@ -292,15 +281,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             new_score = max(differences)
 
             # Update database
-            if debug:
-                print('Updating...')
             the_table.update(dict(id=query_id, score=new_score), ['id'])
-            if debug:
-                print('Updated')
-                print('Commiting...')
             db.commit()
-            if debug:
-                print('Commited')
 
         else:
 
