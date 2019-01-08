@@ -177,7 +177,11 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     ################################################################################################################
 
     # Initialize some variable
-    current_score = sys.maxsize
+    if sys.version_info[0] < 3:
+        maxint = sys.maxint
+    else:
+        maxint = sys.maxsize
+    current_score = maxint
     nr_iterations = 1000000000
     patience = 3*len(param_names)
     waiting = 0
@@ -224,7 +228,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         else:
             # If the system is stuck in a region where it cannot explore new configurations, randomly reset parameters
             waiting = 0
-            current_score = sys.maxsize
+            current_score = maxint
 
             for param_name in param_names:
                 new_indexes[param_name] = rnd.sample(range(grid_params[param_name]), 1)[0] + 1
@@ -359,7 +363,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 if __name__ == "__main__":
 
     # Job ID
-    j = int(sys.argv[1])
+    j = 0#int(sys.argv[1])
 
     # Resolution of the grid search
     if len(sys.argv) > 2:
