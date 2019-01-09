@@ -63,7 +63,7 @@ def set_param(pname, index, granu=0):
         if pname in ['Theta_high', 'Theta_low']:
             return (-5 + 5 * index) * b2.mV
         elif pname in ['A_LTP', 'A_LTD']:
-            return 10 ** (index - 7),
+            return 10 ** (index - 7)
         elif pname in ['tau_lowpass1', 'tau_lowpass2', 'tau_x']:
             return 3 ** (index - 1) * b2.ms
         elif pname is 'b_theta':
@@ -161,6 +161,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         # new version
         grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 7, 'A_LTD': 7, 'tau_lowpass1': 6,
                        'tau_lowpass2': 6, 'tau_x': 6}
+
     elif granularity == 1:
         grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
                        'tau_lowpass2': 7, 'tau_x': 7, 'b_theta': 5, 'tau_theta': 5}
