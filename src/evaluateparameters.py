@@ -76,7 +76,7 @@ def set_param(pname, index, granu=0):
 if __name__ == "__main__":
 
     # Chose the simulation you want to test the parameters on
-    protocol = 'Letzkus'
+    protocol = 'Brandalise'
 
     # Initialize some specifics
     if protocol is 'Brandalise':
@@ -96,8 +96,8 @@ if __name__ == "__main__":
             parameters = {'PlasticityRule': 'Claire', 'veto': False, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
 
             # Initialize dictionary for parameter indexes
-            indexes = {'A_LTD': 2, 'A_LTP': 2, 'Theta_low': 1, 'Theta_high': 1,
-                       'tau_lowpass1': 1, 'tau_lowpass2': 3, 'tau_x': 1}
+            indexes = {'A_LTD': 1, 'A_LTP': 1, 'Theta_low': 0, 'Theta_high': 0,
+                       'tau_lowpass1': 3, 'tau_lowpass2': 3, 'tau_x': 2}
 
             # Initialize parameter values from indices according to desired grid design and specfic granularity
             for param_name in param_names:
@@ -111,10 +111,12 @@ if __name__ == "__main__":
         p[t], _ = simulate(protocol, t, parameters, debug=False)
 
     if protocol is 'Brandalise':
-        p = [p[0], 0.78 * p[1] + 0.22 * p[2], p[3], 0.8 * p[4] + 0.2 * p[5], p[6], p[7], 0.85 * p[8] + 0.15 * p[9],
-             p[10], p[11],
-             p[12], 0.81 * p[13] + 0.19 * p[14], p[15], p[16], 0.84 * p[17] + 0.16 * p[18], p[19], p[20],
-             0.85 * p[21] + 0.15 * p[22], p[23]]
+        p = [repets * p[0], 38 * p[1] + 22 * p[2], repets * p[3], 40 * p[4] + 20 * p[5], repets * p[6], repets * p[7],
+             45 * p[8] + 15 * p[9], repets * p[10], repets * p[11], repets * p[12], 41 * p[13] + 19 * p[14],
+             repets * p[15], repets * p[16], 44 * p[17] + 16 * p[18], repets * p[19], repets * p[20],
+             45 * p[21] + 15 * p[22], repets * p[23]]
+    else:
+        p = repets * p
 
     for t in range(len(p)):
-        print("Trace {} has plasticity: {}".format(t, 100 * (1 + repets * p[t])))
+        print("Trace {} has plasticity: {}".format(t, 100 * (1 + p[t])))

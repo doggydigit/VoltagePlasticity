@@ -18,7 +18,37 @@ from simulation import *
 
 warnings.filterwarnings("error")
 
+# # old version
+# def set_param(pname, index, granu=0):
+#     """
+#     This function will either transform the given index to the corresponding parameter value or sample an index in the
+#     right parameter range to produce a randomly sampled value for the desired parameter.
+#     :param pname: Name of the parameter to set
+#     :param index: Index of the parameter value
+#     :param granu: Granularity of the parameter search, which determines what parameter search subspace
+#     :return: return the value for desired parameter to set
+#     """
+#
+#     if granu == 0:
+#         if pname in ['Theta_high', 'Theta_low']:
+#             return (-15 - 7 * index) * b2.mV
+#         elif pname in ['A_LTP', 'A_LTD']:
+#             return 0.001 * 10 ** index
+#         elif pname in ['tau_lowpass1', 'tau_lowpass2']:
+#             return 2 ** index * b2.ms
+#         elif pname is 'tau_x':
+#             return 2 ** (index - 2) * b2.ms
+#         elif pname is 'b_theta':
+#             return 0.4 * 5 ** index
+#         elif pname is 'tau_theta':
+#             return 0.2 * 5 ** index * b2.ms
+#         else:
+#             raise ValueError(pname)
+#     else:
+#         raise NotImplementedError
 
+
+# new version
 def set_param(pname, index, granu=0):
     """
     This function will either transform the given index to the corresponding parameter value or sample an index in the
@@ -31,13 +61,11 @@ def set_param(pname, index, granu=0):
 
     if granu == 0:
         if pname in ['Theta_high', 'Theta_low']:
-            return (-15 - 7 * index) * b2.mV
+            return (-5 + 5 * index) * b2.mV
         elif pname in ['A_LTP', 'A_LTD']:
-            return 0.001 * 10 ** index
-        elif pname in ['tau_lowpass1', 'tau_lowpass2']:
-            return 2 ** index * b2.ms
-        elif pname is 'tau_x':
-            return 2 ** (index - 2) * b2.ms
+            return 10 ** (index - 7),
+        elif pname in ['tau_lowpass1', 'tau_lowpass2', 'tau_x']:
+            return 3 ** (index - 1) * b2.ms
         elif pname is 'b_theta':
             return 0.4 * 5 ** index
         elif pname is 'tau_theta':
@@ -126,8 +154,13 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Specifications of the search grid depending on the search granularity
     if granularity == 0:
-        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
-                       'tau_lowpass2': 7, 'tau_x': 7}
+        # # old
+        # grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
+        #                'tau_lowpass2': 7, 'tau_x': 7}
+
+        # new version
+        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 7, 'A_LTD': 7, 'tau_lowpass1': 6,
+                       'tau_lowpass2': 6, 'tau_x': 6}
     elif granularity == 1:
         grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
                        'tau_lowpass2': 7, 'tau_x': 7, 'b_theta': 5, 'tau_theta': 5}
