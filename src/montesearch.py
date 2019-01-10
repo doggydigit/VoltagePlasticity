@@ -72,6 +72,31 @@ def set_param(pname, index, granu=0):
             return 0.2 * 5 ** index * b2.ms
         else:
             raise ValueError(pname)
+    elif granu == 1:
+            if pname is 'Theta_low':
+                return (-5 + 5 * (index+1)) * b2.mV
+            elif pname is 'Theta_high':
+                return (-5 + 5 * (float(index)/2 + 1)) * b2.mV
+            elif pname is 'A_LTP':
+                if index > 4.5:
+                    i = float(index)/2 + 2.5
+                else:
+                    i = float(index)/2 + 0.5
+                return 10 ** (i - 9)
+            elif pname is 'A_LTD':
+                return 10 ** (index - 8)
+            elif pname is 'tau_x':
+                return 3 ** (float(index)/2 + 2.5) * b2.ms
+            elif pname is 'tau_lowpass1':
+                return 3 ** (index - 1) * b2.ms
+            elif pname is 'tau_lowpass2':
+                return 3 ** (float(index)/2 - 1) * b2.ms
+            elif pname is 'b_theta':
+                return 0.4 * 5 ** index
+            elif pname is 'tau_theta':
+                return 0.2 * 5 ** index * b2.ms
+            else:
+                raise ValueError(pname)
     else:
         raise NotImplementedError
 
@@ -163,8 +188,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                        'tau_lowpass2': 6, 'tau_x': 6}
 
     elif granularity == 1:
-        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
-                       'tau_lowpass2': 7, 'tau_x': 7, 'b_theta': 5, 'tau_theta': 5}
+        grid_params = {'Theta_high': 7, 'Theta_low': 7, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7, 'tau_lowpass2': 6, 'tau_x': 6}
     else:
         raise NotImplementedError
 

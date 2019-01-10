@@ -82,10 +82,12 @@ def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
 
     # Define plasticity equations depending on the chosen plasticity rule
     if plasticity_parameters['PlasticityRule'] == 'Clopath':
+        eqs += b2.Equations('wLTD = A_LTD * pre_x_trace * (v_lowpass1 - Theta_low)'
+                            ' * int(v_lowpass1/mV - Theta_low/mV > 0) : volt')
         eqs += b2.Equations('wLTP = A_LTP * pre_x_trace * (v - Theta_high) * (v_lowpass2 - Theta_low)'
                             ' * int(v - Theta_high > 0*mV) * int(v_lowpass2 - Theta_low > 0*mV)')
-        eqs += b2.Equations('w_ampa = clip(w_ampa - A_LTD * (v_lowpass1/mV - Theta_low/mV) * int(t == t_pre)'
-                            ' * int(v_lowpass1_post/mV - Theta_low/mV > 0) + 0.1 * wLTP, w_min, w_max) : 1')
+        eqs += b2.Equations('dw_ampa/dt = (wLTP - wLTD)/(mV*ms) : 1')
+
     elif plasticity_parameters['PlasticityRule'] == 'Claire':
         eqs += b2.Equations('wLTD = A_LTD * pre_x_trace * (v_lowpass1 - Theta_low)'
                             ' * int(v_lowpass1/mV - Theta_low/mV > 0) : volt')
