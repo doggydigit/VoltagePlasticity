@@ -153,20 +153,38 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # List of parameters to fit and initialization of parameters object with those that don't need fitting
     if split:
         # List of parameters to fit
-        param_names = ['A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+        if granularity == 0:
+            param_names = ['A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
 
-        # Compute set parameter indexes
-        itl = jid % 9
-        ith = int(math.floor(float(jid) / 9.))
-        indexes = {'Theta_high': ith, 'Theta_low': itl}
+            # Compute set parameter indexes
+            itl = jid % 9
+            ith = int(math.floor(float(jid) / 9.))
+            indexes = {'Theta_high': ith, 'Theta_low': itl}
 
-        # Compute set parameter values
-        tl = set_param('Theta_low', itl, g)
-        th = set_param('Theta_high', ith, g)
+            # Compute set parameter values
+            tl = set_param('Theta_low', itl, g)
+            th = set_param('Theta_high', ith, g)
 
-        # Initialize parameters not needing fitting
-        parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
-                      'Theta_high': th, 'Theta_low': tl}
+            # Initialize parameters not needing fitting
+            parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
+                          'Theta_high': th, 'Theta_low': tl}
+        elif granularity == 1:
+            param_names = ['Theta_high', 'Theta_low', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+
+            # Compute set parameter indexes
+            iap = jid % 9
+            iad = int(math.floor(float(jid) / 9.))
+            indexes = {'A_LTP': iap, 'A_LTD': iad}
+
+            # Compute set parameter values
+            ap = set_param('A_LTP', iap, g)
+            ad = set_param('A_LTD', iad, g)
+
+            # Initialize parameters not needing fitting
+            parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
+                          'A_LTP': ap, 'A_LTD': ad}
+        else:
+            raise ValueError(granularity)
     else:
         # List of parameters to fit
         param_names = ['Theta_high', 'Theta_low', 'A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
@@ -184,11 +202,12 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         #                'tau_lowpass2': 7, 'tau_x': 7}
 
         # new version
-        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 7, 'A_LTD': 7, 'tau_lowpass1': 6,
-                       'tau_lowpass2': 6, 'tau_x': 6}
+        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 7, 'A_LTD': 7,
+                       'tau_lowpass1': 6, 'tau_lowpass2': 6, 'tau_x': 6}
 
     elif granularity == 1:
-        grid_params = {'Theta_high': 7, 'Theta_low': 7, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7, 'tau_lowpass2': 6, 'tau_x': 6}
+        grid_params = {'Theta_high': 7, 'Theta_low': 7, 'A_LTP': 8, 'A_LTD': 8,
+                       'tau_lowpass1': 7, 'tau_lowpass2': 6, 'tau_x': 6}
     else:
         raise NotImplementedError
 
@@ -380,7 +399,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         g = int(sys.argv[2])
     else:
-        g = 0
+        g = 1
 
     # Starting Configuration
     if len(sys.argv) == 4:
