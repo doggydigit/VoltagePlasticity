@@ -56,19 +56,42 @@ def set_param(pname, index, granu=0):
 
     if granu == 0:
         if pname in ['Theta_high', 'Theta_low']:
-            return (-15 - 7 * index) * b2.mV
+            return (-5 + 5 * index) * b2.mV
         elif pname in ['A_LTP', 'A_LTD']:
-            return 0.001 * 10 ** index
-        elif pname in ['tau_lowpass1', 'tau_lowpass2']:
-            return 2 ** index * b2.ms
-        elif pname is 'tau_x':
-            return 2 ** (index - 2) * b2.ms
+            return 10 ** (index - 6)
+        elif pname in ['tau_lowpass1', 'tau_lowpass2', 'tau_x']:
+            return 3 ** (index - 1) * b2.ms
         elif pname is 'b_theta':
             return 0.4 * 5 ** index
         elif pname is 'tau_theta':
             return 0.2 * 5 ** index * b2.ms
         else:
             raise ValueError(pname)
+    elif granu == 1:
+            if pname is 'Theta_low':
+                return (-5 + 5 * (index+1)) * b2.mV
+            elif pname is 'Theta_high':
+                return (-5 + 5 * (float(index)/2 + 1)) * b2.mV
+            elif pname is 'A_LTP':
+                if index > 4.5:
+                    i = float(index)/2 + 2.5
+                else:
+                    i = float(index)/2 + 0.5
+                return 10 ** (i - 9)
+            elif pname is 'A_LTD':
+                return 10 ** (index - 8)
+            elif pname is 'tau_x':
+                return 3 ** (float(index)/2 + 2.5) * b2.ms
+            elif pname is 'tau_lowpass1':
+                return 3 ** (index - 1) * b2.ms
+            elif pname is 'tau_lowpass2':
+                return 3 ** (float(index)/2 - 1) * b2.ms
+            elif pname is 'b_theta':
+                return 0.4 * 5 ** index
+            elif pname is 'tau_theta':
+                return 0.2 * 5 ** index * b2.ms
+            else:
+                raise ValueError(pname)
     else:
         raise NotImplementedError
 
@@ -76,7 +99,7 @@ def set_param(pname, index, granu=0):
 if __name__ == "__main__":
 
     # Chose the simulation you want to test the parameters on
-    protocol = 'Brandalise'
+    protocol = 'Letzkus'
 
     # Initialize some specifics
     if protocol is 'Brandalise':
@@ -96,12 +119,12 @@ if __name__ == "__main__":
             parameters = {'PlasticityRule': 'Claire', 'veto': False, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5}
 
             # Initialize dictionary for parameter indexes
-            indexes = {'A_LTD': 1, 'A_LTP': 1, 'Theta_low': 0, 'Theta_high': 0,
-                       'tau_lowpass1': 3, 'tau_lowpass2': 3, 'tau_x': 2}
+            indexes = {'A_LTD': 8, 'A_LTP': 4, 'Theta_low': 7, 'Theta_high': 1,
+                       'tau_lowpass1': 6, 'tau_lowpass2': 1, 'tau_x': 4}
 
             # Initialize parameter values from indices according to desired grid design and specfic granularity
             for param_name in param_names:
-                parameters[param_name] = set_param(param_name, indexes[param_name], 0)
+                parameters[param_name] = set_param(param_name, indexes[param_name], 1)
     else:
         raise ValueError(protocol)
     p = [0] * nrtraces
@@ -116,7 +139,9 @@ if __name__ == "__main__":
              repets * p[15], repets * p[16], 44 * p[17] + 16 * p[18], repets * p[19], repets * p[20],
              45 * p[21] + 15 * p[22], repets * p[23]]
     else:
-        p = repets * p
+        p = [repets * pl for pl in p]
+        target = [92, 129, 90, 100, 118, 100, 137, 85, 100, 78]
 
     for t in range(len(p)):
-        print("Trace {} has plasticity: {}".format(t, 100 * (1 + p[t])))
+        plast = 100 * (1 + p[t])
+        print("Trace {} has plasticity: {} and difference: {}".format(t, plast, abs(target[t] - plast)))

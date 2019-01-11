@@ -10,9 +10,12 @@ Data/*.xlsx
 *docx
 
 # ipython stuff
+.idea
 src/.idea
 src/*ipynb*
 src/__pycache__
+
+src/play*
 
 src/*.pyc
 src/*.sh
