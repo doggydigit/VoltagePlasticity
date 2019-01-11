@@ -162,8 +162,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             indexes = {'Theta_high': ith, 'Theta_low': itl}
 
             # Compute set parameter values
-            tl = set_param('Theta_low', itl, g)
-            th = set_param('Theta_high', ith, g)
+            tl = set_param('Theta_low', itl, granularity)
+            th = set_param('Theta_high', ith, granularity)
 
             # Initialize parameters not needing fitting
             parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
@@ -177,8 +177,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             indexes = {'A_LTP': iap, 'A_LTD': iad}
 
             # Compute set parameter values
-            ap = set_param('A_LTP', iap, g)
-            ad = set_param('A_LTD', iad, g)
+            ap = set_param('A_LTP', iap, granularity)
+            ad = set_param('A_LTD', iad, granularity)
 
             # Initialize parameters not needing fitting
             parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
@@ -283,7 +283,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                     continue
 
             # Index shift is accepted, thus update parameter value
-            new_parameters[param_name] = set_param(param_name, new_indexes[param_name])
+            new_parameters[param_name] = set_param(param_name, new_indexes[param_name], granularity)
 
         else:
             # If the system is stuck in a region where it cannot explore new configurations, randomly reset parameters
