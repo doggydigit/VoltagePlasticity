@@ -18,87 +18,28 @@ from simulation import *
 
 warnings.filterwarnings("error")
 
-# # old version
-# def set_param(pname, index, granu=0):
-#     """
-#     This function will either transform the given index to the corresponding parameter value or sample an index in the
-#     right parameter range to produce a randomly sampled value for the desired parameter.
-#     :param pname: Name of the parameter to set
-#     :param index: Index of the parameter value
-#     :param granu: Granularity of the parameter search, which determines what parameter search subspace
-#     :return: return the value for desired parameter to set
-#     """
-#
-#     if granu == 0:
-#         if pname in ['Theta_high', 'Theta_low']:
-#             return (-15 - 7 * index) * b2.mV
-#         elif pname in ['A_LTP', 'A_LTD']:
-#             return 0.001 * 10 ** index
-#         elif pname in ['tau_lowpass1', 'tau_lowpass2']:
-#             return 2 ** index * b2.ms
-#         elif pname is 'tau_x':
-#             return 2 ** (index - 2) * b2.ms
-#         elif pname is 'b_theta':
-#             return 0.4 * 5 ** index
-#         elif pname is 'tau_theta':
-#             return 0.2 * 5 ** index * b2.ms
-#         else:
-#             raise ValueError(pname)
-#     else:
-#         raise NotImplementedError
 
-
-# new version
-def set_param(pname, index, granu=0):
+def set_param(pname, index):
     """
     This function will either transform the given index to the corresponding parameter value or sample an index in the
     right parameter range to produce a randomly sampled value for the desired parameter.
     :param pname: Name of the parameter to set
     :param index: Index of the parameter value
-    :param granu: Granularity of the parameter search, which determines what parameter search subspace
     :return: return the value for desired parameter to set
     """
 
-    if granu == 0:
-        if pname in ['Theta_high', 'Theta_low']:
-            return (-5 + 5 * index) * b2.mV
-        elif pname in ['A_LTP', 'A_LTD']:
-            return 10 ** (index - 7)
-        elif pname in ['tau_lowpass1', 'tau_lowpass2', 'tau_x']:
-            return 3 ** (index - 1) * b2.ms
-        elif pname is 'b_theta':
-            return 0.4 * 5 ** index
-        elif pname is 'tau_theta':
-            return 0.2 * 5 ** index * b2.ms
-        else:
-            raise ValueError(pname)
-    elif granu == 1:
-            if pname is 'Theta_low':
-                return (-5 + 5 * (index+1)) * b2.mV
-            elif pname is 'Theta_high':
-                return (-5 + 5 * (float(index)/2 + 1)) * b2.mV
-            elif pname is 'A_LTP':
-                if index > 4.5:
-                    i = float(index)/2 + 2.5
-                else:
-                    i = float(index)/2 + 0.5
-                return 10 ** (i - 9)
-            elif pname is 'A_LTD':
-                return 10 ** (index - 8)
-            elif pname is 'tau_x':
-                return 3 ** (float(index)/2 + 2.5) * b2.ms
-            elif pname is 'tau_lowpass1':
-                return 3 ** (index - 1) * b2.ms
-            elif pname is 'tau_lowpass2':
-                return 3 ** (float(index)/2 - 1) * b2.ms
-            elif pname is 'b_theta':
-                return 0.4 * 5 ** index
-            elif pname is 'tau_theta':
-                return 0.2 * 5 ** index * b2.ms
-            else:
-                raise ValueError(pname)
+    if pname in ['Theta_high', 'Theta_low']:
+        return (-5 + 5 * index) * b2.mV
+    elif pname in ['A_LTP', 'A_LTD']:
+        return 10 ** (index - 6)
+    elif pname in ['tau_lowpass1', 'tau_lowpass2', 'tau_x']:
+        return 3 ** (index - 1) * b2.ms
+    elif pname is 'b_theta':
+        return 0.4 * 5 ** index
+    elif pname is 'tau_theta':
+        return 0.2 * 5 ** index * b2.ms
     else:
-        raise NotImplementedError
+        raise ValueError(pname)
 
 
 def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, granularity=0, first_id=None,
@@ -162,27 +103,27 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             indexes = {'Theta_high': ith, 'Theta_low': itl}
 
             # Compute set parameter values
-            tl = set_param('Theta_low', itl, granularity)
-            th = set_param('Theta_high', ith, granularity)
+            tl = set_param('Theta_low', itl)
+            th = set_param('Theta_high', ith)
 
             # Initialize parameters not needing fitting
             parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
                           'Theta_high': th, 'Theta_low': tl}
         elif granularity == 1:
-            param_names = ['Theta_high', 'Theta_low', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
+            param_names = ['Theta_high', 'A_LTP', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
 
             # Compute set parameter indexes
-            iap = jid % 9
-            iad = int(math.floor(float(jid) / 9.))
-            indexes = {'A_LTP': iap, 'A_LTD': iad}
+            itl = (jid % 13) * 0.5 + 2
+            iad = int(math.floor(float(jid) / 13.))
+            indexes = {'Theta_low': itl, 'A_LTD': iad}
 
             # Compute set parameter values
-            ap = set_param('A_LTP', iap, granularity)
-            ad = set_param('A_LTD', iad, granularity)
+            tl = set_param('Theta_low', itl)
+            ad = set_param('A_LTD', iad)
 
             # Initialize parameters not needing fitting
             parameters = {'PlasticityRule': plasticity, 'veto': veto, 'x_reset': 1., 'w_max': 1, 'w_init': 0.5,
-                          'A_LTP': ap, 'A_LTD': ad}
+                          'Theta_low': tl, 'A_LTD': ad}
         else:
             raise ValueError(granularity)
     else:
@@ -196,18 +137,14 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         indexes = {}
 
     # Specifications of the search grid depending on the search granularity
+    increase = 0.5 ** granularity
     if granularity == 0:
-        # # old
-        # grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 8, 'A_LTD': 8, 'tau_lowpass1': 7,
-        #                'tau_lowpass2': 7, 'tau_x': 7}
-
-        # new version
-        grid_params = {'Theta_high': 8, 'Theta_low': 8, 'A_LTP': 7, 'A_LTD': 7,
-                       'tau_lowpass1': 6, 'tau_lowpass2': 6, 'tau_x': 6}
+        grid_params = {'Theta_high': [1, 8], 'Theta_low': [1, 8], 'A_LTP': [1, 7], 'A_LTD': [1, 7],
+                       'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 6], 'tau_x': [1, 6]}
 
     elif granularity == 1:
-        grid_params = {'Theta_high': 7, 'Theta_low': 7, 'A_LTP': 8, 'A_LTD': 8,
-                       'tau_lowpass1': 7, 'tau_lowpass2': 6, 'tau_x': 6}
+        grid_params = {'Theta_high': [3, 7], 'Theta_low': [2, 8], 'A_LTP': [0, 7], 'A_LTD': [1, 7],
+                       'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 4], 'tau_x': [1, 7]}
     else:
         raise NotImplementedError
 
@@ -220,7 +157,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
     # Initialize parameter indices
     if first_id is None:
         for param_name in param_names:
-            indexes[param_name] = rnd.sample(range(grid_params[param_name]), 1)[0] + 1
+            nr_param_indexes = int(round((grid_params[param_name][1] - grid_params[param_name][0]) / increase + 1))
+            indexes[param_name] = rnd.sample(range(nr_param_indexes), 1)[0] * increase + grid_params[param_name][0]
     else:
         translator = {'Theta_high': 'th', 'Theta_low': 'tl', 'A_LTP': 'ap', 'A_LTD': 'ad', 'tau_lowpass1': 't1',
                       'tau_lowpass2': 't2', 'tau_x': 'tx', 'b_theta': 'bt', 'tau_theta': 'tt'}
@@ -233,7 +171,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
     # Initialize parameter values from indices according to desired grid design and specfic granularity
     for param_name in param_names:
-        parameters[param_name] = set_param(param_name, indexes[param_name], granularity)
+        parameters[param_name] = set_param(param_name, indexes[param_name])
 
     print('\nInitialization completed.')
 
@@ -267,23 +205,22 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             param_name = rnd.sample(param_names, 1)[0]
 
             # Shift index of selected parameter and check whether it remains in accepted bounds. Else skip iteration.
-            direction = bool(rnd.getrandbits(1))
-            if direction:
-                new_indexes[param_name] += 1
-                if new_indexes[param_name] > grid_params[param_name]:
+            if bool(rnd.getrandbits(1)):
+                new_indexes[param_name] += increase
+                if new_indexes[param_name] > grid_params[param_name][1]:
                     if current_score > 0:
                         print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
                     continue
 
             else:
-                new_indexes[param_name] -= 1
-                if new_indexes[param_name] < 1:
+                new_indexes[param_name] -= increase
+                if new_indexes[param_name] < grid_params[param_name][0]:
                     if current_score > 0:
                         print('Wall reached with parameter {} for index {}'.format(param_name, new_indexes[param_name]))
                     continue
 
             # Index shift is accepted, thus update parameter value
-            new_parameters[param_name] = set_param(param_name, new_indexes[param_name], granularity)
+            new_parameters[param_name] = set_param(param_name, new_indexes[param_name])
 
         else:
             # If the system is stuck in a region where it cannot explore new configurations, randomly reset parameters
@@ -291,8 +228,9 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             current_score = maxint
 
             for param_name in param_names:
-                new_indexes[param_name] = rnd.sample(range(grid_params[param_name]), 1)[0] + 1
-                new_parameters[param_name] = set_param(param_name, indexes[param_name], granularity)
+                nr_param_indexes = int(round((grid_params[param_name][1] - grid_params[param_name][0]) / increase + 1))
+                indexes[param_name] = rnd.sample(range(nr_param_indexes), 1)[0] * increase + grid_params[param_name][0]
+                new_parameters[param_name] = set_param(param_name, indexes[param_name])
 
             print('\n>>>> Random Parameter Reset\n')
 
