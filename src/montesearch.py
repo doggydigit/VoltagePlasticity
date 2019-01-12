@@ -143,8 +143,8 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                        'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 6], 'tau_x': [1, 6]}
 
     elif granularity == 1:
-        grid_params = {'Theta_high': [3, 7], 'Theta_low': [2, 8], 'A_LTP': [0, 7], 'A_LTD': [1, 7],
-                       'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 4], 'tau_x': [1, 7]}
+        grid_params = {'Theta_high': [3, 7], 'Theta_low': [2, 8], 'A_LTP': [-1, 7], 'A_LTD': [1, 7],
+                       'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 4], 'tau_x': [1, 8]}
     else:
         raise NotImplementedError
 

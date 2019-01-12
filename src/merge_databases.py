@@ -19,7 +19,14 @@ if __name__ == "__main__":
     protocol_type = 'Letzkus'
     plasticity = 'Claire'
     veto = False
-    nrdb = 81
+
+    # Predefine some specifics dependent stuff
+    if granularity == 0 and protocol_type is 'Letzkus' and plasticity is 'Claire' and not veto:
+        nrdb = 81
+    elif granularity == 0 and protocol_type is 'Letzkus' and plasticity is 'Claire' and not veto:
+        nrdb = 91
+    else:
+        raise NotImplementedError
 
     # Connect with the database where all the results will be merged and create the table that will contain it
     merged_db = dataset.connect('sqlite:///../Data/monteresults_' + protocol_type + '_g' + str(granularity) + '.db')
