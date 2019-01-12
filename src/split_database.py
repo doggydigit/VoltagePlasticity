@@ -24,14 +24,14 @@ if __name__ == "__main__":
     # Predefine some specifics dependent stuff
     table_name = plasticity + '_veto' if veto else plasticity + '_noveto'
     if granularity == 0 and protocol_type is 'Letzkus' and plasticity is 'Claire' and not veto:
-        nrdb = 3
+        nrdb = 91
     else:
         raise NotImplementedError
 
     # Create database splits one by one
     for i in range(nrdb):
 
-        print('Job {}'.format(i))
+        print('Base {}'.format(i))
 
         db = dataset.connect('sqlite:///../Data/monteresults_'+protocol_type+'_g'+str(granularity+1)+"_j"+str(i)+'.db')
         db.query("CREATE TABLE IF NOT EXISTS "+table_name+" (id INTEGER PRIMARY KEY AUTOINCREMENT, th REAL, tl REAL,"
@@ -44,8 +44,6 @@ if __name__ == "__main__":
         if granularity == 0 and protocol_type is 'Letzkus' and plasticity is 'Claire' and not veto:
             itl = str((i % 13) * 0.5 + 2)
             iad = str(int(floor(float(i) / 13.) + 1))
-            print(itl)
-            print(iad)
             condition = "tl = " + itl + " AND ad = " + iad
         else:
             raise NotImplementedError

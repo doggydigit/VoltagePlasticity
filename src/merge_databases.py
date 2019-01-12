@@ -33,7 +33,7 @@ if __name__ == "__main__":
     # Add the databases one by one to the merged database
     for i in range(nrdb):
 
-        print('Job {}'.format(i))
+        print('Base {}'.format(i))
 
         merged_db.query("BEGIN;")
         merged_db.query("ATTACH DATABASE '../Data/monteresults_" + protocol_type + "_g" + str(granularity) + "_j"
@@ -44,10 +44,9 @@ if __name__ == "__main__":
         merged_db.query("DETACH DATABASE candidate;")
         merged_db.commit()
 
-    merged_table = merged_db.create_table('table_name')
-    print(merged_table.count())
+    # Remove rows that weren't finished with simulating
+    merged_table = merged_db.create_table(table_name)
     merged_table.delete(score=9999999999999999)
     merged_db.commit()
-    print(merged_table.count())
 
     print('\nDone')
