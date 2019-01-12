@@ -5,6 +5,10 @@ Theory/*
 Data/*.csv
 Data/*.xlsx
 
+# Bad databases
+Data/bad*
+Data/old*
+
 # Results
 *.ods*
 *docx
