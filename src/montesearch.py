@@ -114,7 +114,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
             # Compute set parameter indexes
             itl = (jid % 13) * 0.5 + 2
-            iad = int(math.floor(float(jid) / 13.))
+            iad = int(math.floor(float(jid) / 13.) + 1)
             indexes = {'Theta_low': itl, 'A_LTD': iad}
 
             # Compute set parameter values
