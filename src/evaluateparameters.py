@@ -43,6 +43,22 @@ Lparams = {'PlasticityRule': 'Claire',
            'w_init': 0.5
            }
 
+Lparams2 = {'PlasticityRule': 'Claire',
+            'veto': True,
+            'x_reset': 1.,  # spike trace reset value'
+            'A_LTD': 0.000160328,  # depression amplitude
+            'A_LTP': 0.0000385,  # potentiation amplitude
+            'Theta_low': 5.6 * b2.mV,  # depolarization threshold for plasticity
+            'Theta_high': 26.2 * b2.mV,
+            'b_theta': 10000.98042,
+            'tau_theta': 25.4 * b2.ms,
+            'tau_lowpass1': 65.5 * b2.ms,  # = tau_minus
+            'tau_lowpass2': 2.0 * b2.ms,  # = tau_plus
+            'tau_x': 22.1 * b2.ms,
+            'w_max': 1,
+            'w_init': 0.5
+            }
+
 
 def set_param(pname, index, granu=0):
     """
@@ -68,30 +84,30 @@ def set_param(pname, index, granu=0):
         else:
             raise ValueError(pname)
     elif granu == 1:
-            if pname is 'Theta_low':
-                return (-5 + 5 * (index+1)) * b2.mV
-            elif pname is 'Theta_high':
-                return (-5 + 5 * (float(index)/2 + 1)) * b2.mV
-            elif pname is 'A_LTP':
-                if index > 4.5:
-                    i = float(index)/2 + 2.5
-                else:
-                    i = float(index)/2 + 0.5
-                return 10 ** (i - 9)
-            elif pname is 'A_LTD':
-                return 10 ** (index - 8)
-            elif pname is 'tau_x':
-                return 3 ** (float(index)/2 + 2.5) * b2.ms
-            elif pname is 'tau_lowpass1':
-                return 3 ** (index - 1) * b2.ms
-            elif pname is 'tau_lowpass2':
-                return 3 ** (float(index)/2 - 1) * b2.ms
-            elif pname is 'b_theta':
-                return 0.4 * 5 ** index
-            elif pname is 'tau_theta':
-                return 0.2 * 5 ** index * b2.ms
+        if pname is 'Theta_low':
+            return (-5 + 5 * (index + 1)) * b2.mV
+        elif pname is 'Theta_high':
+            return (-5 + 5 * (float(index) / 2 + 1)) * b2.mV
+        elif pname is 'A_LTP':
+            if index > 4.5:
+                i = float(index) / 2 + 2.5
             else:
-                raise ValueError(pname)
+                i = float(index) / 2 + 0.5
+            return 10 ** (i - 9)
+        elif pname is 'A_LTD':
+            return 10 ** (index - 8)
+        elif pname is 'tau_x':
+            return 3 ** (float(index) / 2 + 2.5) * b2.ms
+        elif pname is 'tau_lowpass1':
+            return 3 ** (index - 1) * b2.ms
+        elif pname is 'tau_lowpass2':
+            return 3 ** (float(index) / 2 - 1) * b2.ms
+        elif pname is 'b_theta':
+            return 0.4 * 5 ** index
+        elif pname is 'tau_theta':
+            return 0.2 * 5 ** index * b2.ms
+        else:
+            raise ValueError(pname)
     else:
         raise NotImplementedError
 
@@ -149,5 +165,6 @@ if __name__ == "__main__":
         print("Trace {} has plasticity: {} and difference: {}".format(t, plast, d[t]))
     print("L-infinity is {}".format(max(d)))
     if protocol is 'Letzkus':
-        print("L2 is {}".format(100 * sum([d[t]**2 for t in range(len(d)-1)]) + 25 * d[-1] ** 2))
+        print("L2 is {}".format(100 * sum([d[t] ** 2 for t in range(len(d) - 1)]) + 6.25 * d[-1] ** 2))
 
+    print(d)
