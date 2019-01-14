@@ -109,7 +109,7 @@ if __name__ == "__main__":
     elif protocol is 'Letzkus':
         nrtraces = 10
         repets = 150
-        if False:
+        if True:
             parameters = Lparams
         else:
             # List of parameters to fit
@@ -142,6 +142,12 @@ if __name__ == "__main__":
         p = [repets * pl for pl in p]
         target = [92, 129, 90, 100, 118, 100, 137, 85, 100, 78]
 
+    d = [0] * len(target)
     for t in range(len(p)):
         plast = 100 * (1 + p[t])
-        print("Trace {} has plasticity: {} and difference: {}".format(t, plast, abs(target[t] - plast)))
+        d[t] = abs(target[t] - plast)
+        print("Trace {} has plasticity: {} and difference: {}".format(t, plast, d[t]))
+    print("L-infinity is {}".format(max(d)))
+    if protocol is 'Letzkus':
+        print("L2 is {}".format(100 * sum([d[t]**2 for t in range(len(d)-1)]) + 25 * d[-1] ** 2))
+
