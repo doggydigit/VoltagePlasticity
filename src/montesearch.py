@@ -361,7 +361,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
             new_score = max(differences)
             if protocol_type == 'Letzkus':
-                l2 = 100 * sum([differences[t]**2 for t in range(len(differences)-1)]) + 25 * differences[-1] ** 2
+                l2 = 100 * sum([differences[t]**2 for t in range(len(differences)-1)]) + 6.25 * differences[-1] ** 2
             elif protocol_type == 'Brandalise':
                 raise NotImplementedError
 
