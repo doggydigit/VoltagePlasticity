@@ -216,7 +216,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                    100, 131, 96.6, 100, 119.3, 104.5, 104.3, 40, 40]
     elif protocol_type is 'Letzkus':
         nrtraces = 9
-        nrneurons = 10
+        nrneurons = 9
         repets = 150
         targets = [92, 129, 90, 100, 118, 100, 137, 85, 100]
     else:
