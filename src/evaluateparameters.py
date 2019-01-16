@@ -123,7 +123,7 @@ if __name__ == "__main__":
         repets = 60
         parameters = Bparams
     elif protocol is 'Letzkus':
-        nrtraces = 10
+        nrtraces = 9
         repets = 150
         if True:
             parameters = Lparams

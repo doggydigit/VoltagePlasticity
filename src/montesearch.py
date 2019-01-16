@@ -215,10 +215,10 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
         targets = [100, 144.8, 96.6, 122, 101.4, 95.5, 128.7, 101.1, 94.5,
                    100, 131, 96.6, 100, 119.3, 104.5, 104.3, 40, 40]
     elif protocol_type is 'Letzkus':
-        nrtraces = 10
+        nrtraces = 9
         nrneurons = 10
         repets = 150
-        targets = [92, 129, 90, 100, 118, 100, 137, 85, 100, 78]
+        targets = [92, 129, 90, 100, 118, 100, 137, 85, 100]
     else:
         raise ValueError(protocol_type)
 
@@ -324,14 +324,13 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
                                                  tx=new_indexes['tau_x'], bt=new_indexes['b_theta'],
-                                                 tt=new_indexes['tau_theta'], score=9999999999999999,
-                                                 l2=9999999999999999))
+                                                 tt=new_indexes['tau_theta'], li=9999999999999999, l2=9999999999999999))
 
             else:
                 query_id = the_table.insert(dict(th=new_indexes['Theta_high'], tl=new_indexes['Theta_low'],
                                                  ap=new_indexes['A_LTP'], ad=new_indexes['A_LTD'],
                                                  t1=new_indexes['tau_lowpass1'], t2=new_indexes['tau_lowpass2'],
-                                                 tx=new_indexes['tau_x'], score=9999999999999999, l2=9999999999999999))
+                                                 tx=new_indexes['tau_x'], li=9999999999999999, l2=9999999999999999))
             db.commit()
 
             ############################################################################################################
@@ -359,14 +358,10 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 
             # Compute score
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
-            new_score = max(differences)
-            if protocol_type == 'Letzkus':
-                l2 = 100 * sum([differences[t]**2 for t in range(len(differences)-1)]) + 6.25 * differences[-1] ** 2
-            elif protocol_type == 'Brandalise':
-                raise NotImplementedError
+            new_score = sum([d ** 2 for d in differences])
 
             # Update database
-            the_table.update(dict(id=query_id, score=new_score, l2=l2), ['id'])
+            the_table.update(dict(id=query_id, li=max(differences), l2=new_score), ['id'])
             db.commit()
 
         else:
@@ -418,7 +413,7 @@ if __name__ == "__main__":
     # Simulation choices
     ptype = 'Letzkus'  # Type of protocol to use for parameter fit
     rule_name = 'Claire'  # can be either of 'Claire' or 'Clopath'
-    vetoing = True  # whether or not to use a veto mechanism between LTP and LTD
+    vetoing = False  # whether or not to use a veto mechanism between LTP and LTD
 
     # Run
     exi = main(ptype, rule_name, veto=vetoing, debug=False, granularity=g, first_id=fid, split=True, jid=j)
