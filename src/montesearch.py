@@ -94,7 +94,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid, first_id,
                               'Theta_high': th, 'Theta_low': tl}
             elif granularity == 1:
                 # List of parameters to fit
-                param_names = ['Theta_high', 'A_LTP', 'tau_lowpass1', 'tau_lowpass2', 'tau_x', 'b_theta', 'tau_theta']
+                param_names = ['Theta_high', 'A_LTP', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
 
                 # Compute set parameter indexes
                 itl = (jid % 13) * 0.5 + 2
@@ -369,7 +369,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
             waiting += 1
 
             # Get score that was already computed
-            new_score = query['score']
+            new_score = query['li']
             print('    Was already simulated')
 
         # Given appropriate probability, update current state with the new state
@@ -396,13 +396,13 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, 
 if __name__ == "__main__":
 
     # Job ID
-    j = int(sys.argv[1])
+    j = 81#int(sys.argv[1])
 
     # Resolution of the grid search
     if len(sys.argv) > 2:
         g = int(sys.argv[2])
     else:
-        g = 1
+        g = 0
 
     # Starting Configuration
     if len(sys.argv) == 4:
