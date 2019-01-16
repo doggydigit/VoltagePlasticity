@@ -75,7 +75,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid, first_id,
 
     # Make list of parameters to fit and initialization of parameters object with those that don't need fitting
     if split:
-        if table_name is 'Claire_noveto':
+        if table_name == 'Claire_noveto':
             if granularity == 0:
                 # List of parameters to fit
                 param_names = ['A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
