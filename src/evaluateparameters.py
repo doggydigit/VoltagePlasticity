@@ -27,6 +27,38 @@ Bparams = {'PlasticityRule': 'Claire',
            'w_init': 0.5
            }
 
+Bparams2 = {'PlasticityRule': 'Claire',
+            'veto': True,
+            'x_reset': 1.,  # spike trace reset value'
+            'A_LTD': 0.099761303,  # depression amplitude
+            'A_LTP': 0.013652842,  # potentiation amplitude
+            'Theta_low': 2.636491402 * b2.mV,  # depolarization threshold for plasticity
+            'Theta_high': 12.20124861 * b2.mV,
+            'b_theta': 2.114599383,
+            'tau_theta': 75.72422075 * b2.ms,
+            'tau_lowpass1': 74.55801316 * b2.ms,  # = tau_minus
+            'tau_lowpass2': 2.786924509 * b2.ms,  # = tau_plus
+            'tau_x': 5.12639093 * b2.ms,
+            'w_max': 1,
+            'w_init': 0.5
+            }
+
+Bparams3 = {'PlasticityRule': 'Claire',
+            'veto': True,
+            'x_reset': 1.,  # spike trace reset value'
+            'A_LTD': 0.099763602,  # depression amplitude
+            'A_LTP': 0.01505758,  # potentiation amplitude
+            'Theta_low': 2.927871397 * b2.mV,  # depolarization threshold for plasticity
+            'Theta_high': 12.12886953 * b2.mV,
+            'b_theta': 942.1754017,
+            'tau_theta': 114.6026989 * b2.ms,
+            'tau_lowpass1': 63.79366 * b2.ms,  # = tau_minus
+            'tau_lowpass2': 2.853035054 * b2.ms,  # = tau_plus
+            'tau_x': 4.990562943 * b2.ms,
+            'w_max': 1,
+            'w_init': 0.5
+            }
+
 Lparams = {'PlasticityRule': 'Claire',
            'veto': True,
            'x_reset': 1.,  # spike trace reset value'
@@ -115,18 +147,18 @@ def set_param(pname, index, granu=0):
 if __name__ == "__main__":
 
     # Chose the simulation you want to test the parameters on
-    protocol = 'Letzkus'
+    protocol = 'Brandalise'
 
     # Initialize some specifics
     if protocol is 'Brandalise':
         nrtraces = 24
         repets = 60
-        parameters = Bparams
+        parameters = Bparams2
     elif protocol is 'Letzkus':
-        nrtraces = 9
+        nrtraces = 10
         repets = 150
         if True:
-            parameters = Lparams
+            parameters = Lparams2
         else:
             # List of parameters to fit
             param_names = ['Theta_high', 'Theta_low', 'A_LTP', 'A_LTD', 'tau_lowpass1', 'tau_lowpass2', 'tau_x']
@@ -154,6 +186,8 @@ if __name__ == "__main__":
              45 * p[8] + 15 * p[9], repets * p[10], repets * p[11], repets * p[12], 41 * p[13] + 19 * p[14],
              repets * p[15], repets * p[16], 44 * p[17] + 16 * p[18], repets * p[19], repets * p[20],
              45 * p[21] + 15 * p[22], repets * p[23]]
+        target = [100, 144.8, 96.6, 122, 101.4, 95.5, 128.7, 101.1, 94.5,
+                  100, 131, 96.6, 100, 119.3, 104.5, 104.3, 40, 40]
     else:
         p = [repets * pl for pl in p]
         target = [92, 129, 90, 100, 118, 100, 137, 85, 100, 78]
@@ -166,5 +200,8 @@ if __name__ == "__main__":
     print("L-infinity is {}".format(max(d)))
     if protocol is 'Letzkus':
         print("L2 is {}".format(100 * sum([d[t] ** 2 for t in range(len(d) - 1)]) + 6.25 * d[-1] ** 2))
+    elif protocol is 'Brandalise':
+        print("L2 is {}".format(100 * sum([d[t] ** 2 for t in range(len(d) - 2)])
+                                + 25 * sum([d[-t] ** 2 for t in range(1, 3)])))
 
     print(d)

@@ -58,8 +58,7 @@ def set_param(pname, index, plas='Claire_noveto'):
 
 def init_params(granularity, split, table_name, plasticity, veto, jid, first_id, the_table, debug):
     """
-    Initialize objects that will be necessary for the monte carlo parameter optimization and are specific to the desired
-    specifics of the simulation.
+
     :param granularity: int describing how fine the param search will be (Note: the range is also decreased for that)
     :param split: bool whether or not to split the search grid dependening on the job id
     :param table_name: name of the database table, which also specifies the plasticity rule used
@@ -187,7 +186,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid, first_id,
 
 
 def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, granularity=0, first_id=None,
-         split=True, jid=0,):
+         split=True, jid=0):
     """
     Simulate a stimulation protocol with the desired neuron model and plasticity rule to monitor the resulting synaptic
     weight dynamics. This can also plot or save some results of the simulation.
