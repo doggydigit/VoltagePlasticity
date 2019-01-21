@@ -282,10 +282,9 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
             differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
 
             # Update database
-            table.insert(dict(th=indexes['Theta_high'], tl=indexes['Theta_low'], ap=indexes['A_LTP'],
-                              ad=indexes['A_LTD'], t1=indexes['tau_lowpass1'], t2=indexes['tau_lowpass2'],
-                              tx=indexes['tau_x'], bt=indexes['b_theta'], tt=indexes['tau_theta'],
-                              li=max(differences), l2=sum([d ** 2 for d in differences])))
+            table.insert(dict(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'], ad=idxs['A_LTD'],
+                              t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'], tx=idxs['tau_x'], bt=idxs['b_theta'],
+                              tt=idxs['tau_theta'], li=max(differences), l2=sum([d ** 2 for d in differences])))
 
             database.commit()
 
