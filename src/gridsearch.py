@@ -85,7 +85,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid):
     :param veto: whether or not to sue veto
     :param jid: id of the job on which this program is running (only useful in case of split)
     :return: list of names (keys) of the parameters to fit, dictionaries of the indexes and of the actual values of the
-    parameters to start with, boundaries of the index grid to use for the search, index increase step used for MC.
+    parameters to start with, boundaries of the index grid to use for the search.
     """
 
     # Make list of parameters to fit and initialization of parameters object with those that don't need fitting
@@ -176,7 +176,6 @@ def init_params(granularity, split, table_name, plasticity, veto, jid):
         indexes = {}
 
     # Specifications of the search grid depending on the search granularity
-    increase = 0.5 ** granularity
     if table_name == 'Claire_noveto':
         if granularity == 0:
             grid_params = {'Theta_high': [1, 8], 'Theta_low': [1, 8], 'A_LTP': [1, 7], 'A_LTD': [1, 7],
@@ -207,7 +206,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid):
         indexes[param_name] = grid_params[param_name][0]
         parameters[param_name] = set_param(param_name, indexes[param_name], table_name)
 
-    return param_names, indexes, parameters, grid_params, increase
+    return param_names, indexes, parameters, grid_params
 
 
 def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, plas, nrp, table, database, nrtraces,
@@ -260,6 +259,8 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
             #  Simulate plasticities (We arrived at the last parameter to recurse into)
             ############################################################################################################
 
+            print('Configuration: {}'.format(nr))
+
             # Initialize plasticity array
             p = [0] * nrtraces
 
@@ -289,6 +290,9 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
             database.commit()
 
             nr += 1
+
+            print('        Max Error {}'.format(max(differences)))
+            sys.stdout.flush()
 
     return nr
 
@@ -338,8 +342,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     # Plasticity parameters initializations
     ####################################################################################################################
 
-    param_names, indexes, parameters, grid_params, increase = init_params(granularity, split, table_name, plasticity,
-                                                                          veto, jid)
+    param_names, indexes, parameters, grid_params = init_params(granularity, split, table_name, plasticity, veto, jid)
 
     print('\nInitialization completed.')
 
