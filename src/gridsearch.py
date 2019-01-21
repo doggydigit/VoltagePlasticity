@@ -351,6 +351,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     ####################################################################################################################
 
     print('\nStarting Grid Search:')
+    sys.stdout.flush()
 
     _ = gridrecursion(0, param_names, indexes, grid_params, parameters, granularity, table_name, len(param_names),
                       the_table, db, nrtraces, nrneurons, repets, protocol_type, targets, 0)
