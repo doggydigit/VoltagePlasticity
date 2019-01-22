@@ -84,6 +84,8 @@ if __name__ == "__main__":
 
         # Get the configuration corresponding to the sample id
         q = spacetab.find_one(id=s)
+        print(s)
+        print(q)
 
         # Get neighbors from previous simulation results (with lower granularity)
         if veto:
