@@ -104,8 +104,6 @@ if __name__ == "__main__":
         # If the relative probability score is sufficiently low
         if relprob < threshold:
 
-            print(nri)
-            sys.stdout.flush()
             nri += 1
 
             # Compute the cumulative relative probability
@@ -118,7 +116,13 @@ if __name__ == "__main__":
             else:
                 newtab.insert(dict(ap=q['ap'], ad=q['ad'], th=q['th'], tl=q['tl'], t1=q['t1'] - nh, t2=q['t2'],
                                    tx=q['tx'], li=9999999999999999, l2=9999999999999999, crp=crp))
-            newdb.commit()
+
+            if nri % 100 == 0:
+                print(nri)
+                sys.stdout.flush()
+                newdb.commit()
+
+    newdb.commit()
 
     # Finally normalize the relative cumulative probability to get the actual cumulative sampling probability
     newdb.query("BEGIN;")
