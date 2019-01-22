@@ -7,7 +7,7 @@ Data/*.xlsx
 
 # Bad databases
 Data/Letzkus10/*
-Data/Letzkus10*
+Data/Letzkus*
 # Results
 *.ods*
 *docx
