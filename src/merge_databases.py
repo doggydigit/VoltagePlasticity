@@ -45,8 +45,11 @@ if __name__ == "__main__":
         merged_db.query("BEGIN;")
         merged_db.query("ATTACH DATABASE '../Data/monteresults_" + protocol_type + "_g" + str(granularity) + "_j"
                         + str(i) + ".db' AS candidate;")
-        merged_db.query("INSERT INTO main." + table_name + " SELECT id+" + str(maxid)
-                        + ", th, tl, ap, ad, t1, t2, tx, score FROM candidate." + table_name + ";")
+        if veto:
+            raise NotImplementedError
+        else:
+            merged_db.query("INSERT INTO main." + table_name + " SELECT id+" + str(maxid)
+                            + ", th, tl, ap, ad, t1, t2, tx, score FROM candidate." + table_name + ";")
         maxid += next(merged_db.query("SELECT max(id) FROM candidate." + table_name + ";"))['max(id)']
         merged_db.query("DETACH DATABASE candidate;")
         merged_db.commit()
