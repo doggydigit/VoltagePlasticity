@@ -23,3 +23,5 @@ src/play*
 src/*.pyc
 src/*.sh
 src/log/*
+
+Data/backup*
