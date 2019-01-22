@@ -13,7 +13,6 @@ import sys
 import math
 import dataset
 import warnings
-import random as rnd
 from simulation import *
 
 warnings.filterwarnings("error")
@@ -35,9 +34,10 @@ def set_param(pname, index, plas='Claire_noveto', prot='Letzkus'):
         if plas == 'Claire_noveto':
             raise NotImplementedError
         elif plas == 'Claire_veto':
-            cbest = {'A_LTD': 0.0001872, 'A_LTP': 0.00003933, 'Theta_low': 4.886 * b2.mV, 'Theta_high': 26.04 * b2.mV,
-                     'b_theta': 9999., 'tau_theta': 32.13 * b2.ms, 'tau_lowpass1': 77.17 * b2.ms,
-                     'tau_lowpass2': 2.001 * b2.ms, 'tau_x': 20.89 * b2.ms}
+            cbest = {'A_LTD': 0.00017497, 'A_LTP': 0.0000392, 'Theta_low': 5.19687991 * b2.mV, 'b_theta': 9991.2109,
+                     'Theta_high': 25.7159892 * b2.mV, 'tau_theta': 26.7646283 * b2.ms, 'tau_x': 21.8613168 * b2.ms,
+                     'tau_lowpass1': 70.4876245 * b2.ms, 'tau_lowpass2': 2.00056053 * b2.ms}
+
         else:
             raise ValueError(plas)
     elif prot == 'Brandalise':
@@ -326,9 +326,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     :param split: bool whether or not to split the search grid dependening on the job id
     :param jid: id of the job running the montecarlo search. Necessary for splitting the grid search in case of split.
     """
-
-    # Set random seed to current time to have different seeds for each of the many jobs
-    rnd.seed()
 
     ####################################################################################################################
     # Define some variables depending on the protocol type
