@@ -9,9 +9,8 @@
     Python Version: 3.5
 """
 
+import sys
 import dataset
-import sys.argv
-import sys.stdout.flush
 from math import floor
 
 
