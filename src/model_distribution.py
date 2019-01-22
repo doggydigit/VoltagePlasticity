@@ -68,7 +68,7 @@ if __name__ == "__main__":
     random.seed(1)
     allids = list(range(totnr))
     random.shuffle(allids)
-    samples = allids[idxs]
+    samples = [allids[i] for i in idxs]
     del allids
 
     ####################################################################################################################
