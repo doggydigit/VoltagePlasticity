@@ -96,7 +96,7 @@ if __name__ == "__main__":
         raise NotImplementedError
 
     # Build ne database and table
-    spacedb = dataset.connect("sqlite:///../Data/tsamplespace_" + protocol_type + "_g" + str(granularity) + ".db")
+    spacedb = dataset.connect("sqlite:///../Data/samplespace_" + protocol_type + "_g" + str(granularity) + ".db")
     spacetab = spacedb.create_table(table_name)
 
     # Populate database recursively
