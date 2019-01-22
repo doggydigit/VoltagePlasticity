@@ -126,8 +126,7 @@ if __name__ == "__main__":
 
     # Finally normalize the relative cumulative probability to get the actual cumulative sampling probability
     newdb.query("BEGIN;")
-    newdb.query("UPDATE " + table_name + " SET crp = crp / " + crp + ";")
-    newdb.query("END;")
+    newdb.query("UPDATE " + table_name + " SET crp = crp / " + str(crp) + ";")
     newdb.commit()
 
     print('\nDone')
