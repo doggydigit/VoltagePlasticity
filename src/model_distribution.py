@@ -9,9 +9,9 @@
     Python Version: 3.5
 """
 
+import sys
 import dataset
 import random
-from sys import argv
 from os.path import isfile
 
 
@@ -21,10 +21,10 @@ if __name__ == "__main__":
     #  Initialize variables specfic to the current run
     ####################################################################################################################
 
-    if len(argv) != 2:
+    if len(sys.argv) != 2:
         raise ValueError("You must add a single integer argument to function call in order to define the job id.")
     else:
-        j = int(argv[1])
+        j = int(sys.argv[1])
 
     # Specifics of the run
     granularity = 1
@@ -79,13 +79,8 @@ if __name__ == "__main__":
     nri = 0
     for s in samples:
 
-        print(nri)
-        nri += 1
-
         # Get the configuration corresponding to the sample id
         q = spacetab.find_one(id=s)
-        print(s)
-        print(q)
 
         # Get neighbors from previous simulation results (with lower granularity)
         if veto:
@@ -108,6 +103,10 @@ if __name__ == "__main__":
 
         # If the relative probability score is sufficiently low
         if relprob < threshold:
+
+            print(nri)
+            sys.stdout.flush()
+            nri += 1
 
             # Compute the cumulative relative probability
             crp += threshold - relprob
