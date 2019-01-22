@@ -210,7 +210,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid):
 
 
 def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, plas, nrp, table, database, nrtraces,
-                  nrneurons, repets, prot, targets, nr):
+                  nrneurons, repets, prot, targets, nr, veto, catching_up):
     """
     Recursive function to loop each parameter to vary along it grid search values.
     :param pi: int describing which parameter of the variable parameter list we are currently varying
@@ -229,6 +229,8 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
     :param prot: string describing the protocol to simulate
     :param targets: list of target plasticities to compute losses
     :param nr: The number of parameter configurations already simulated by the grid search
+    :param veto: whether or not to use veto mechanism
+    :param catching_up: whether or not the program is still catching up with precomputed configurations
     :return: The updated number of parameter configurations simulated by the grid search
     """
 
@@ -250,51 +252,68 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
         if pi < nrp - 1:
 
             # Recurse into next parameter
-            nr = gridrecursion(pi + 1, pnames, idxs, grid_params, pmts, granularity, plas, nrp, table, database,
-                               nrtraces, nrneurons, repets, prot, targets, nr)
+            nr, catching_up = gridrecursion(pi + 1, pnames, idxs, grid_params, pmts, granularity, plas, nrp, table,
+                                            database, nrtraces, nrneurons, repets, prot, targets, nr, veto, catching_up)
 
         else:
+
+            # Check whether this parameter configuration was already simulated.
+            if catching_up:
+                if veto:
+                    query = table.find_one(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'],
+                                           ad=idxs['A_LTD'], t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'],
+                                           tx=idxs['tau_x'], bt=idxs['b_theta'], tt=idxs['tau_theta'])
+                else:
+                    query = table.find_one(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'],
+                                           ad=idxs['A_LTD'], t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'],
+                                           tx=idxs['tau_x'])
+
+                if query is None:
+                    catching_up = False
 
             ############################################################################################################
             #  Simulate plasticities (We arrived at the last parameter to recurse into)
             ############################################################################################################
 
-            print('Configuration: {}'.format(nr))
+            if not catching_up:
 
-            # Initialize plasticity array
-            p = [0] * nrtraces
+                print('Configuration: {}'.format(nr))
 
-            # Iterate through all available traces to simulate
-            for t in range(nrtraces):
-                # Simulate trace and store plasticity
-                p[t], _ = simulate(prot, t, pmts)
+                # Initialize plasticity array
+                p = [0] * nrtraces
 
-            ############################################################################################################
-            #  Compute losses and update database
-            ############################################################################################################
+                # Iterate through all available traces to simulate
+                for t in range(nrtraces):
+                    # Simulate trace and store plasticity
+                    p[t], _ = simulate(prot, t, pmts)
 
-            # If Brandalise weight supralinear and linear trace plasticity contributions
-            if prot == 'Brandalise':
-                p = [p[0], 0.78 * p[1] + 0.22 * p[2], p[3], 0.8 * p[4] + 0.2 * p[5], p[6], p[7],
-                     0.85 * p[8] + 0.15 * p[9], p[10], p[11], p[12], 0.81 * p[13] + 0.19 * p[14], p[15], p[16],
-                     0.84 * p[17] + 0.16 * p[18], p[19], p[20], 0.85 * p[21] + 0.15 * p[22], p[23]]
+                ########################################################################################################
+                #  Compute losses and update database
+                ########################################################################################################
 
-            # Compute errors
-            differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
+                # If Brandalise weight supralinear and linear trace plasticity contributions
+                if prot == 'Brandalise':
+                    p = [p[0], 0.78 * p[1] + 0.22 * p[2], p[3], 0.8 * p[4] + 0.2 * p[5], p[6], p[7],
+                         0.85 * p[8] + 0.15 * p[9], p[10], p[11], p[12], 0.81 * p[13] + 0.19 * p[14], p[15], p[16],
+                         0.84 * p[17] + 0.16 * p[18], p[19], p[20], 0.85 * p[21] + 0.15 * p[22], p[23]]
 
-            # Update database
-            table.insert(dict(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'], ad=idxs['A_LTD'],
-                              t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'], tx=idxs['tau_x'], bt=idxs['b_theta'],
-                              tt=idxs['tau_theta'], li=max(differences), l2=sum([d ** 2 for d in differences])))
+                # Compute errors
+                differences = [abs(targets[t] - 100 * (1 + repets * p[t])) for t in range(nrneurons)]
 
-            database.commit()
+                # Update database
+                table.insert(dict(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'], ad=idxs['A_LTD'],
+                                  t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'], tx=idxs['tau_x'],
+                                  bt=idxs['b_theta'], tt=idxs['tau_theta'], li=max(differences),
+                                  l2=sum([d ** 2 for d in differences])))
 
-            nr += 1
+                database.commit()
 
-            print('        Max Error {}'.format(max(differences)))
-            sys.stdout.flush()
+                nr += 1
 
-    return nr
+                print('        Max Error {}'.format(max(differences)))
+                sys.stdout.flush()
+
+    return nr, catching_up
 
 
 def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0, split=True, jid=0):
@@ -354,7 +373,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     sys.stdout.flush()
 
     _ = gridrecursion(0, param_names, indexes, grid_params, parameters, granularity, table_name, len(param_names),
-                      the_table, db, nrtraces, nrneurons, repets, protocol_type, targets, 0)
+                      the_table, db, nrtraces, nrneurons, repets, protocol_type, targets, 0, veto, True)
 
     print('\nFinished Grid search successfully!')
 

@@ -144,7 +144,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid, first_id,
     increase = 0.5 ** granularity
     if table_name == 'Claire_noveto':
         if granularity == 0:
-            grid_params = {'Theta_high': [1, 8], 'Theta_low': [1, 8], 'A_LTP': [1, 7], 'A_LTD': [1, 7],
+            grid_params = {'Theta_high': [0, 8], 'Theta_low': [0, 8], 'A_LTP': [1, 7], 'A_LTD': [1, 7],
                            'tau_lowpass1': [1, 6], 'tau_lowpass2': [1, 6], 'tau_x': [1, 6]}
 
         elif granularity == 1:
