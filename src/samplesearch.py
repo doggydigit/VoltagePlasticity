@@ -125,6 +125,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
 
     # Initialize some variables
     nr_iterations = 10000000
+    nrs = 0
 
     print('\nStarting Sample Search:')
 
@@ -136,8 +137,15 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
         # Draw a conifguration according to the estimated loss distribution
         draw = rnd.uniform(0, 1)
         query = the_table.find_one(the_table.table.columns.crp >= draw)
+        if query is None:
+            query = the_table.find_one(id=the_table.count())
 
         if query['l2'] == 9999999999999999:
+
+            nrs += 1
+            print(nrs)
+            sys.stdout.flush()
+
             for p in param_names:
                 parameters[p] = set_param(p, query[translate[p]], table_name)
 
@@ -170,6 +178,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
 
             # Update database
             the_table.update(dict(id=query['id'], li=max(differences), l2=new_score), ['id'])
+
             db.commit()
 
     return 0
