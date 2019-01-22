@@ -76,11 +76,11 @@ if __name__ == "__main__":
     ####################################################################################################################
     crp = 0.0
     nh = 0.5 ** granularity
-    n = 0
+    nri = 0
     for s in samples:
 
         print(n)
-        n += 1
+        nri += 1
 
         # Get the configuration corresponding to the sample id
         q = spacetab.find_one(id=s)
