@@ -38,7 +38,7 @@ if __name__ == "__main__":
         threshold = 3000
         prealgo = "monte"
         totnr = 2195200
-        nrsplits = 81
+        nrsplits = 64
         if totnr % nrsplits != 0:
             raise ValueError("{} rows cannot be equally split between {} nodes.".format(totnr, nrsplits))
     else:
