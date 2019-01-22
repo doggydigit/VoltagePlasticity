@@ -45,9 +45,6 @@ def samplerecursion(pi, pnames, indexes, pgrid, gran, nrp, table, database, nr, 
         ################################################################################################################
         if pi < nrp - 1:
 
-            if pi == 2:
-                print(nr)
-
             # Recurse into next parameter
             nr = samplerecursion(pi + 1, pnames, idxs, pgrid, gran, nrp, table, database, nr, vetoing)
 
@@ -63,9 +60,12 @@ def samplerecursion(pi, pnames, indexes, pgrid, gran, nrp, table, database, nr, 
             else:
                 table.insert(dict(th=idxs['Theta_high'], tl=idxs['Theta_low'], ap=idxs['A_LTP'], ad=idxs['A_LTD'],
                                   t1=idxs['tau_lowpass1'], t2=idxs['tau_lowpass2'], tx=idxs['tau_x']))
-            database.commit()
 
             nr += 1
+
+    if pi == 3:
+        print(nr)
+        database.commit()
 
     return nr
 
