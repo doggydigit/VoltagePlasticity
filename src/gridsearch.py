@@ -308,10 +308,10 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
 
                 database.commit()
 
-                nr += 1
-
                 print('        Max Error {}'.format(max(differences)))
                 sys.stdout.flush()
+
+            nr += 1
 
     return nr, catching_up
 

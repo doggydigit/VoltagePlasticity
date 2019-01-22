@@ -32,7 +32,7 @@ if __name__ == "__main__":
     merged_db = dataset.connect('sqlite:///../Data/monteresults_' + protocol_type + '_g' + str(granularity) + '.db')
     table_name = plasticity + '_veto' if veto else plasticity + '_noveto'
     merged_db.query("CREATE TABLE IF NOT EXISTS " + table_name + " (id INTEGER PRIMARY KEY, th REAL, tl REAL, ap REAL, "
-                    "ad REAL, t1 REAL, t2 REAL, tx REAL, score REAL);")
+                    "ad REAL, t1 REAL, t2 REAL, tx REAL, li REAL, l2 REAL);")
     merged_db.commit()
 
     maxid = 0
@@ -49,7 +49,7 @@ if __name__ == "__main__":
             raise NotImplementedError
         else:
             merged_db.query("INSERT INTO main." + table_name + " SELECT id+" + str(maxid)
-                            + ", th, tl, ap, ad, t1, t2, tx, score FROM candidate." + table_name + ";")
+                            + ", th, tl, ap, ad, t1, t2, tx, li, l2 FROM candidate." + table_name + ";")
         maxid += next(merged_db.query("SELECT max(id) FROM candidate." + table_name + ";"))['max(id)']
         merged_db.query("DETACH DATABASE candidate;")
         merged_db.commit()
