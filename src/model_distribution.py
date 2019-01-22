@@ -44,7 +44,7 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError
 
-    if not isfile("../Data/samplespace_" + protocol_type + "_g" + str(granularity) + ".db"):
+    if not isfile("../Data/samplespace_" + protocol_type + "_g" + str(granularity) + "_j" + str(j) + ".db"):
         raise EnvironmentError("You must call build_space.py (with correct specs) before calling model_distribution.py")
 
     ####################################################################################################################
