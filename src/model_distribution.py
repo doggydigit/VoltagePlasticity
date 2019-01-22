@@ -114,11 +114,11 @@ if __name__ == "__main__":
 
             # Add it to the actual sample space database with its cumulative relative probability
             if veto:
-                newtab.insert(ap=q['ap'], ad=q['ad'], th=q['th'], tl=q['tl'], t1=q['t1']-nh, t2=q['t2'], tx=q['tx'],
-                              bt=q['bt'], tt=q['tt'], li=9999999999999999, l2=9999999999999999, crp=crp)
+                newtab.insert(dict(crp=crp, ap=q['ap'], ad=q['ad'], th=q['th'], tl=q['tl'], t1=q['t1']-nh, t2=q['t2'],
+                                   tx=q['tx'], bt=q['bt'], tt=q['tt'], li=9999999999999999, l2=9999999999999999))
             else:
-                newtab.insert(ap=q['ap'], ad=q['ad'], th=q['th'], tl=q['tl'], t1=q['t1'] - nh, t2=q['t2'], tx=q['tx'],
-                              li=9999999999999999, l2=9999999999999999, crp=crp)
+                newtab.insert(dict(ap=q['ap'], ad=q['ad'], th=q['th'], tl=q['tl'], t1=q['t1'] - nh, t2=q['t2'],
+                                   tx=q['tx'], li=9999999999999999, l2=9999999999999999, crp=crp))
             newdb.commit()
 
     # Finally normalize the relative cumulative probability to get the actual cumulative sampling probability
