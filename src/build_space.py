@@ -10,7 +10,8 @@
 """
 
 import dataset
-from sys import argv
+import sys.argv
+import sys.stdout.flush
 from math import floor
 
 
@@ -65,6 +66,7 @@ def samplerecursion(pi, pnames, indexes, pgrid, gran, nrp, table, database, nr, 
 
     if pi == 3:
         print(nr)
+        sys.stdout.flush()
         database.commit()
 
     return nr
@@ -72,10 +74,10 @@ def samplerecursion(pi, pnames, indexes, pgrid, gran, nrp, table, database, nr, 
 
 if __name__ == "__main__":
 
-    if len(argv) != 2:
+    if len(sys.argv) != 2:
         raise ValueError("You must add a single integer argument to function call in order to define the job id.")
     else:
-        j = int(argv[1])
+        j = int(sys.argv[1])
 
     # Specifics of the run
     granularity = 1
