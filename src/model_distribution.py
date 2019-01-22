@@ -66,7 +66,10 @@ if __name__ == "__main__":
     # Get row ids of the configurations that will be sampled from by the split defined by the id "j"
     idxs = list(range(int(j * totnr / nrsplits), int((j + 1) * totnr / nrsplits)))
     random.seed(1)
-    samples = random.shuffle(list(range(totnr)))[idxs]
+    allids = list(range(totnr))
+    random.shuffle(allids)
+    samples = allids[idxs]
+    del allids
 
     ####################################################################################################################
     #  Iterate through samples and use the maximal score among the neighbors to derive the sampling probability
