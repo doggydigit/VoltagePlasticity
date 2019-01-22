@@ -13,7 +13,6 @@ import sys
 import math
 import dataset
 import warnings
-import random as rnd
 from simulation import *
 
 warnings.filterwarnings("error")
@@ -327,9 +326,6 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     :param split: bool whether or not to split the search grid dependening on the job id
     :param jid: id of the job running the montecarlo search. Necessary for splitting the grid search in case of split.
     """
-
-    # Set random seed to current time to have different seeds for each of the many jobs
-    rnd.seed()
 
     ####################################################################################################################
     # Define some variables depending on the protocol type
