@@ -79,7 +79,7 @@ if __name__ == "__main__":
     nri = 0
     for s in samples:
 
-        print(n)
+        print(nri)
         nri += 1
 
         # Get the configuration corresponding to the sample id
