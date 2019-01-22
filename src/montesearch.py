@@ -188,8 +188,7 @@ def init_params(granularity, split, table_name, plasticity, veto, jid, first_id,
 def main(protocol_type='Letzkus', plasticity='Claire', veto=False, debug=False, granularity=0, first_id=None,
          split=True, jid=0):
     """
-    Simulate a stimulation protocol with the desired neuron model and plasticity rule to monitor the resulting synaptic
-    weight dynamics. This can also plot or save some results of the simulation.
+    Parameter search script that uses an algorithm inspired by a mix between grid and Monte-Carlo search.
     :param protocol_type: Whether to fit on the 'Letzkus' or 'Brandalise' voltage traces.
     :param plasticity: plasticity rule to use; can be either of 'Claire' or 'Clopath'
     :param veto: bool whether or not to use a veto mechanism between LTP and LTD
