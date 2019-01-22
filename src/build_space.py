@@ -63,7 +63,7 @@ def samplerecursion(pi, pnames, indexes, pgrid, gran, nrp, table, database, nr, 
 
             nr += 1
 
-    if pi == 3:
+    if pi == 2:
         print(nr)
         database.commit()
 
