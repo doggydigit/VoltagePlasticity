@@ -34,7 +34,7 @@ def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
     # Load voltage traces and get presynaptic input spike time
     ####################################################################################################################
 
-    if protocol_type is 'Letzkus':
+    if protocol_type == 'Letzkus':
         voltage = np.load('../Data/L_{}.npy'.format(trace_id))
         if trace_id in [0, 2, 4, 6, 8, 9]:
             prespike = 0.0 * b2.ms
@@ -42,7 +42,7 @@ def simulate(protocol_type='Letzkus', trace_id=1, plasticity_parameters=None,
             prespike = 10.0 * b2.ms
         else:
             raise ValueError(trace_id)
-    elif protocol_type is 'Brandalise':
+    elif protocol_type == 'Brandalise':
         voltage = np.load('../Data/B_{}.npy'.format(trace_id))
         if trace_id in list(range(21)):
             prespike = 0.0 * b2.ms
