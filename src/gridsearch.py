@@ -46,8 +46,16 @@ def set_param(pname, index, plas='Claire_noveto', prot='Letzkus'):
         elif plas == 'Claire_veto':
             cbest = {'A_LTD': 0.099763602, 'A_LTP': 0.01505758, 'Theta_low': 2.927871397 * b2.mV,
                      'Theta_high': 12.12886953 * b2.mV, 'b_theta': 942.1754017, 'tau_theta': 114.6026989 * b2.ms,
-                     'tau_lowpass1': 63.79366 * b2.ms, 'tau_lowpass2': 2.853035054 * b2.ms, 'tau_x': 4.990562943 * b2.ms
-                     }
+                     'tau_lowpass1': 63.79366 * b2.ms, 'tau_lowpass2': 2.853035054 * b2.ms, 'tau_x': 4.990562943*b2.ms}
+        else:
+            raise ValueError(plas)
+    elif prot == 'Brandaliseb':
+        if plas == 'Claire_noveto':
+            raise NotImplementedError
+        elif plas == 'Claire_veto':
+            cbest = {'A_LTD': 0.099761303, 'A_LTP': 0.013652842, 'Theta_low': 2.636491402 * b2.mV,
+                     'Theta_high': 12.20124861 * b2.mV, 'b_theta': 2.114599383, 'tau_theta': 75.72422075 * b2.ms,
+                     'tau_lowpass1': 74.55801316*b2.ms, 'tau_lowpass2': 2.786924509*b2.ms, 'tau_x': 5.12639093*b2.ms}
         else:
             raise ValueError(plas)
     else:
@@ -292,7 +300,7 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
                 ########################################################################################################
 
                 # If Brandalise weight supralinear and linear trace plasticity contributions
-                if prot == 'Brandalise':
+                if prot[:10] == 'Brandalise':
                     p = [p[0], 0.78 * p[1] + 0.22 * p[2], p[3], 0.8 * p[4] + 0.2 * p[5], p[6], p[7],
                          0.85 * p[8] + 0.15 * p[9], p[10], p[11], p[12], 0.81 * p[13] + 0.19 * p[14], p[15], p[16],
                          0.84 * p[17] + 0.16 * p[18], p[19], p[20], 0.85 * p[21] + 0.15 * p[22], p[23]]
@@ -331,7 +339,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
     # Define some variables depending on the protocol type
     ####################################################################################################################
 
-    if protocol_type is 'Brandalise':
+    if protocol_type[:10] == 'Brandalise':
         nrtraces = 24
         nrneurons = 18
         repets = 60
@@ -389,7 +397,7 @@ if __name__ == "__main__":
         g = 3
 
     # Simulation choices
-    ptype = 'Letzkus'  # Type of protocol to use for parameter fit
+    ptype = 'Brandaliseb'  # Type of protocol to use for parameter fit
     rule_name = 'Claire'  # can be either of 'Claire' or 'Clopath'
     vetoing = True  # whether or not to use a veto mechanism between LTP and LTD
 
