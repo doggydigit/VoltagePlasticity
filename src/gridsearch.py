@@ -293,7 +293,7 @@ def gridrecursion(pi, pnames, indexes, grid_params, parameters, granularity, pla
                 # Iterate through all available traces to simulate
                 for t in range(nrtraces):
                     # Simulate trace and store plasticity
-                    p[t], _ = simulate(prot, t, pmts)
+                    p[t], _ = simulate(prot[:10], t, pmts)
 
                 ########################################################################################################
                 #  Compute losses and update database
