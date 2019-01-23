@@ -143,7 +143,7 @@ def main(protocol_type='Letzkus', plasticity='Claire', veto=False, granularity=0
         if query['l2'] == 9999999999999999:
 
             nrs += 1
-            print(nrs)
+            print("Computed configurations = {}".format(nrs))
             sys.stdout.flush()
 
             for p in param_names:

@@ -389,7 +389,7 @@ if __name__ == "__main__":
         g = 3
 
     # Simulation choices
-    ptype = 'Brandalise'  # Type of protocol to use for parameter fit
+    ptype = 'Letzkus'  # Type of protocol to use for parameter fit
     rule_name = 'Claire'  # can be either of 'Claire' or 'Clopath'
     vetoing = True  # whether or not to use a veto mechanism between LTP and LTD
 
